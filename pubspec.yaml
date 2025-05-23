@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   rive: ^0.13.20
+  audioplayers: ^6.4.0
 
 dev_dependencies:
   flutter_test:
@@ -21,4 +22,8 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/3estrellas.riv
+<<<<<<< HEAD
     - assets/images/FondoMenu.png
+=======
+    - assets/sounds/
+>>>>>>> e686146 (sonidos y mi pantasha)
