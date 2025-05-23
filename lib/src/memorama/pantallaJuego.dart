@@ -67,6 +67,7 @@ class _MemoramaGameState extends State<MemoramaGame> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.blue,
+                decoration: TextDecoration.none,
               ),
             ),
           ),
@@ -130,7 +131,7 @@ class _MemoramaGameState extends State<MemoramaGame> {
         const SizedBox(height: 10),
         Text(
           "Intentos: $_intentos",
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black, decoration: TextDecoration.none,),
         ),
         const SizedBox(height: 10),
         Expanded(
@@ -148,15 +149,15 @@ class _MemoramaGameState extends State<MemoramaGame> {
                 onTap: () => _onCardTap(index),
                 child: FlipCard(
                   isFlipped: card.isFlipped || card.isMatched,
-                  front: Container(
+                  front:  Container(
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: Colors.lightGreen,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Center(
                       child: Text(
                         "?",
-                        style: TextStyle(fontSize: 32, color: Colors.white),
+                        style: TextStyle(fontSize: 50, color: Colors.white, decoration: TextDecoration.none,),
                       ),
                     ),
                   ),
