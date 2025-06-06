@@ -12,16 +12,28 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              Row(
+        body: Stack(
+          children: [
+            // Fondo de imagen
+            SizedBox.expand(
+              child: Image.asset(
+                'assets/images/FondoMenu.png', // Cambia la ruta si es necesario
+                fit: BoxFit.cover,
+              ),
+            ),
+            // Contenido encima del fondo
+            Center(
+              child: Column(
                 children: [
-                  Actividadimagen()
+                  Row(
+                    children: [
+                      Actividadimagen()
+                    ],
+                  )
                 ],
-              )
-            ],
-          )
+              ),
+            ),
+          ],
         ),
       ),
     );
