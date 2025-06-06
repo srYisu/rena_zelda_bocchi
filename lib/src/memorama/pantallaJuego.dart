@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // MODELO DE CARTA
 class MemoramaCard {
@@ -17,6 +18,7 @@ class MemoramaCard {
     this.isFlipped = false,
   });
 }
+
 
 // JUEGO
 class MemoramaGame extends StatefulWidget {
@@ -130,7 +132,7 @@ class _MemoramaGameState extends State<MemoramaGame> {
       children: [
         const SizedBox(height: 10),
         Text(
-          "Intentos: $_intentos",
+          "Intentos: $_intentos, estrellas: ",
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black, decoration: TextDecoration.none,),
         ),
         const SizedBox(height: 10),
