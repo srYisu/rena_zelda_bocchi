@@ -1,27 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
+import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 import 'package:rive/rive.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GameOverScreen extends StatelessWidget {
   final int intentos;
 
   const GameOverScreen({super.key, required this.intentos});
 
+Future<void> _guardarProgreso(double estrellas) async {
+  final supabase = Supabase.instance.client;
+  final user = supabase.auth.currentUser;
+
+  if (user == null) {
+    print("Usuario no autenticado");
+    return;
+  }
+
+  const levelId = 1; // Este es el nivel actual
+
+  try {
+    // Paso 1: Leer el progreso existente
+    final existing = await supabase
+        .from('progress')
+        .select('stars')
+        .eq('user_id', user.id)
+        .eq('level_id', levelId)
+        .maybeSingle();
+
+    final existingStars = existing?['stars'] ?? 0;
+
+    if (estrellas > existingStars) {
+      await supabase.from('progress').upsert(
+        {
+          'user_id': user.id, // CORREGIDO: usar user.id, no user completo
+          'level_id': levelId,
+          'stars': estrellas.toInt(), // Guarda como entero
+        },
+        onConflict: 'user_id, level_id' // CORREGIDO: usar como parámetro de upsert
+      );
+
+      print("✅ Progreso actualizado: ${estrellas.toInt()} estrellas");
+    } else {
+      print("ℹ️ Progreso no actualizado (ya tenía igual o más estrellas)");
+    }
+  } catch (e) {
+    print("❌ Error al guardar progreso: $e");
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
-String message;
-double estrellas;
+    String message;
+    double estrellas;
 
-if (intentos <= 12) {
-  message = "¡Excelente memoria!";
-  estrellas = 3;
-} else if (intentos <= 18) {
-  message = "¡Muy bien!";
-  estrellas = 2;
-} else {
-  message = "¡Puedes mejorar!";
-  estrellas = 1;
-}
+    if (intentos <= 12) {
+      message = "¡Excelente memoria!";
+      estrellas = 3;
+    } else if (intentos <= 18) {
+      message = "¡Muy bien!";
+      estrellas = 2;
+    } else {
+      message = "¡Puedes mejorar!";
+      estrellas = 1;
+    }
+
+    // Llama a la función al construir el widget
+    _guardarProgreso(estrellas);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Resultado")),
@@ -43,23 +91,21 @@ if (intentos <= 12) {
                   if (controller != null) {
                     artboard.addController(controller);
                     final input = controller.findInput<double>('nEstrellas') as SMINumber?;
-                    input!.change(estrellas);
+                    input?.change(estrellas);
                   }
                 },
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-  onPressed: () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MemoramaGame(), // reinicia completamente la app
-      ),
-    );
-  },
-  child: const Text("Jugar de nuevo"),
-)
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MemoramaGame()),
+                );
+              },
+              child: const Text("Jugar de nuevo"),
+            ),
           ],
         ),
       ),
