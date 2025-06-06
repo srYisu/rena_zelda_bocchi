@@ -16,7 +16,7 @@ class MainApp extends StatelessWidget {
         body: Center(
           child: Column(
             children: [
-              Row(children: [Actividades()]),
+              Row(children: [Actividadimagen()]),
             ],
           ),
         ),
@@ -24,3 +24,4 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+//ds
