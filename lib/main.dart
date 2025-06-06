@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rena_zelda_bocchi/Actividades.dart';
 import 'package:rena_zelda_bocchi/src/actividadContar.dart';
 
 void main() {
@@ -15,13 +16,9 @@ class MainApp extends StatelessWidget {
         body: Center(
           child: Column(
             children: [
-              Row(
-                children: [
-                  Actividadimagen()
-                ],
-              )
+              Row(children: [Actividades()]),
             ],
-          )
+          ),
         ),
       ),
     );
