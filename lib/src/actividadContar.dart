@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
 import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/pares.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/juego_contar.dart';
 
 class Actividadimagen extends StatelessWidget {
   const Actividadimagen({super.key});
@@ -77,7 +79,12 @@ class Actividadimagen extends StatelessWidget {
         texto: 'Contar',
         ancho: ancho,
         alto: alto,
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ContarJuego()),
+          );
+        },
       ),
       ActividadCard(
         imagen: 'assets/images/Hormigas.png',
@@ -115,7 +122,12 @@ class Actividadimagen extends StatelessWidget {
         texto: 'Contar 3',
         ancho: ancho,
         alto: alto,
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EmparejarVisual()),
+          );
+        },
       ),
       ActividadCard(
         imagen: 'assets/images/Hormigas.png',
