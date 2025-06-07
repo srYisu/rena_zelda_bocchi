@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
+import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 
 class Actividadimagen extends StatelessWidget {
   const Actividadimagen({super.key});
@@ -92,10 +93,15 @@ class Actividadimagen extends StatelessWidget {
       ),
       ActividadCard(
         imagen: 'assets/images/HormigasYNumeros.png',
-        texto: 'Contar 2',
+        texto: 'Puertas gramaticales',
         ancho: ancho,
         alto: alto,
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => JuegoPantalla()),
+          );
+        },
       ),
       ActividadCard(
         imagen: 'assets/images/Hormigas.png',
