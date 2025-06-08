@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 class SumasApp extends StatelessWidget {
   @override
@@ -71,46 +73,33 @@ class _JuegoSumasState extends State<JuegoSumas>
     setState(
       () => feedbackColor = esCorrecto ? Colors.greenAccent : Colors.redAccent,
     );
+
     await _controller.forward();
     await Future.delayed(Duration(milliseconds: 300));
     await _controller.reverse();
 
     setState(() {
       feedbackColor = Colors.white;
-      if (preguntaActual < 4) {
+      if (preguntaActual < preguntas.length - 1) {
         preguntaActual++;
       } else {
-        mostrarResultado();
+        _finalizarJuego();
       }
       bloqueado = false;
     });
   }
 
-  void mostrarResultado() {
-    int estrellas = (puntaje / 5 * 3).round();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (_) => AlertDialog(
-            title: Text("¡Juego terminado!"),
-            content: Text(
-              "Obtuviste $estrellas estrella(s) de 3\nPuntaje: $puntaje / 5",
+  void _finalizarJuego() {
+    int estrellas = ((puntaje / preguntas.length) * 3).round();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => GameOverScreen(
+              levelId: 6, // Nivel personalizado para este juego
+              estrellas: estrellas.toDouble(),
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    preguntaActual = 0;
-                    puntaje = 0;
-                    generarPreguntas();
-                    Navigator.of(context).pop();
-                  });
-                },
-                child: Text("Reiniciar"),
-              ),
-            ],
-          ),
+      ),
     );
   }
 
@@ -127,7 +116,7 @@ class _JuegoSumasState extends State<JuegoSumas>
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: LinearProgressIndicator(
-                  value: (preguntaActual + 1) / 5,
+                  value: (preguntaActual + 1) / preguntas.length,
                   backgroundColor: Colors.grey[300],
                   color: Colors.indigo,
                 ),
@@ -157,28 +146,26 @@ class _JuegoSumasState extends State<JuegoSumas>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children:
-                          pregunta.opciones
-                              .map(
-                                (op) => ScaleTransition(
-                                  scale: _animation,
-                                  child: ElevatedButton(
-                                    onPressed: () => responder(op),
-                                    style: ElevatedButton.styleFrom(
-                                      shape: CircleBorder(),
-                                      padding: EdgeInsets.all(30),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                    child: Text(
-                                      '$op',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                          pregunta.opciones.map((op) {
+                            return ScaleTransition(
+                              scale: _animation,
+                              child: ElevatedButton(
+                                onPressed: () => responder(op),
+                                style: ElevatedButton.styleFrom(
+                                  shape: CircleBorder(),
+                                  padding: EdgeInsets.all(30),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                                child: Text(
+                                  '$op',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    color: Colors.white,
                                   ),
                                 ),
-                              )
-                              .toList(),
+                              ),
+                            );
+                          }).toList(),
                     ),
                   ],
                 ),

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'banco_preguntas.dart';
+import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 class JuegoPantalla extends StatefulWidget {
   @override
@@ -173,37 +174,32 @@ class _JuegoPantallaState extends State<JuegoPantalla>
     );
   }
 
+  void finalizarJuego() {
+    double calcularEstrellas(puntos) {
+      if (puntos >= 10) return 3;
+      if (puntos >= 7) return 2;
+      if (puntos >= 4) return 1;
+      return 0;
+    }
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => GameOverScreen(
+                levelId: 2,
+                estrellas: calcularEstrellas(puntos),
+              ),
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (juegoTerminado) {
-      return Scaffold(
-        appBar: AppBar(title: Text("Juego terminado")),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("¡Juego finalizado!", style: TextStyle(fontSize: 24)),
-              Text(
-                "Puntaje final: $puntos / 10",
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    puntos = 0;
-                    preguntasRespondidas = 0;
-                    juegoTerminado = false;
-                    _indicesUsados.clear();
-                    siguientePregunta();
-                  });
-                },
-                child: Text("Jugar de nuevo"),
-              ),
-            ],
-          ),
-        ),
-      );
+      finalizarJuego();
     }
 
     return Scaffold(
