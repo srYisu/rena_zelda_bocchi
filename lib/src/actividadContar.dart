@@ -3,6 +3,8 @@ import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
 import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 import 'package:rena_zelda_bocchi/src/Juegocontar/pares.dart';
 import 'package:rena_zelda_bocchi/src/Juegocontar/juego_contar.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/sumas.dart';
+import 'package:rena_zelda_bocchi/src/Completapalabras/completa.dart';
 
 class Actividadimagen extends StatelessWidget {
   const Actividadimagen({super.key});
@@ -139,7 +141,12 @@ class Actividadimagen extends StatelessWidget {
         texto: 'Memorama 2',
         ancho: ancho,
         alto: alto,
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SumasApp()),
+          );
+        },
       ),
       ActividadCard(
         imagen: 'assets/images/HormigasYNumeros.png',
@@ -158,7 +165,12 @@ class Actividadimagen extends StatelessWidget {
         texto: 'Memorama 3',
         ancho: ancho,
         alto: alto,
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CompletarPalabraApp()),
+          );
+        },
       ),
     ];
   }
