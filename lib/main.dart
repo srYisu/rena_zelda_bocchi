@@ -18,6 +18,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       home: Scaffold(
         body: Iniciosesion(), // Ya no necesitas el fondo aquí
       ),

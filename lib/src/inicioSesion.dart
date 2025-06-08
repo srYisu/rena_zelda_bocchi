@@ -12,72 +12,72 @@ class Iniciosesion extends StatefulWidget {
 
 class _Iniciosesion extends State<Iniciosesion> {
   GoogleSignIn? _googleSignIn;
-
   String? userId;
   String? nombre;
+  String? errorMsg; // <-- Para mostrar el error
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  // 🔁 Espera cambios de sesión
-  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-    final event = data.event;
-    final session = data.session;
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+      final session = data.session;
 
-    if (event == AuthChangeEvent.signedIn && session != null) {
-      print('✅ Sesión restaurada desde redirect');
-      setState(() {
-        userId = session.user.id;
-        nombre = session.user.userMetadata?['full_name'] ?? 'Niño';
-      });
+      if (event == AuthChangeEvent.signedIn && session != null) {
+        setState(() {
+          userId = session.user.id;
+          nombre = session.user.userMetadata?['full_name'] ?? 'Niño';
+          errorMsg = null;
+        });
+      }
+    });
+
+    final session = Supabase.instance.client.auth.currentSession;
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (session == null || user == null) {
+      _autoLogin();
+    } else {
+      userId = user.id;
+      nombre = user.userMetadata?['full_name'] ?? 'Niño';
     }
-  });
-
-  // ⚠️ Solo autoLogin si no hay sesión activa
-  final session = Supabase.instance.client.auth.currentSession;
-  final user = Supabase.instance.client.auth.currentUser;
-
-  if (session == null || user == null) {
-    _autoLogin();
-  } else {
-    print('✅ Ya había sesión: ${user.email}');
-    userId = user.id;
-    nombre = user.userMetadata?['full_name'] ?? 'Niño';
   }
-}
-
 
   Future<void> _autoLogin() async {
+    setState(() {
+      errorMsg = null;
+    });
     try {
       if (kIsWeb) {
-  final redirectUrl = Uri.base.origin + '/';
-  await Supabase.instance.client.auth.signInWithOAuth(
-    OAuthProvider.google,
-    redirectTo: redirectUrl,
-  );
-  print("🔁 Redireccionando a login...");
-  return;
-}
+        final redirectUrl = Uri.base.origin + '/';
+        await Supabase.instance.client.auth.signInWithOAuth(
+          OAuthProvider.google,
+          redirectTo: redirectUrl,
+        );
+        return;
+      }
 
-
-      // 📱 Android / iOS: Usa GoogleSignIn
       _googleSignIn = GoogleSignIn(
         scopes: ['email'],
         serverClientId:
-            '347514460071-j2hnsqvnir7bb2jkf4lor34ola3gj9s7.apps.googleusercontent.com', // Android OAuth
+            '347514460071-j2hnsqvnir7bb2jkf4lor34ola3gj9s7.apps.googleusercontent.com',
       );
 
       final googleUser = await _googleSignIn!.signIn();
       if (googleUser == null) {
-        print("❌ Usuario canceló el inicio");
+        setState(() {
+          errorMsg = "El inicio de sesión fue cancelado.";
+        });
         return;
       }
 
       final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken;
       if (idToken == null) {
-        print("❌ No se pudo obtener el token de Google");
+        setState(() {
+          errorMsg = "No se pudo obtener el token de Google.";
+        });
         return;
       }
 
@@ -88,14 +88,16 @@ void initState() {
 
       final user = res.user;
       if (user != null) {
-        print('✅ Usuario conectado a Supabase: ${user.email}');
         setState(() {
           userId = user.id;
           nombre = googleUser.displayName ?? "Niño";
+          errorMsg = null;
         });
       }
     } catch (e) {
-      print("⚠️ Error en login: $e");
+      setState(() {
+        errorMsg = "Ocurrió un error al iniciar sesión. Intenta de nuevo.";
+      });
     }
   }
 
@@ -104,7 +106,27 @@ void initState() {
     return Scaffold(
       body: userId != null
           ? Actividadimagen()
-          : const Center(child: CircularProgressIndicator()),
+          : Center(
+              child: errorMsg == null
+                  ? const CircularProgressIndicator()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error, color: Colors.red, size: 60),
+                        const SizedBox(height: 16),
+                        Text(
+                          errorMsg!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 18, color: Colors.red),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _autoLogin,
+                          child: const Text("Reintentar"),
+                        ),
+                      ],
+                    ),
+            ),
     );
   }
 }

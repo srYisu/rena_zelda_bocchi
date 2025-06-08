@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:rena_zelda_bocchi/src/Completapalabras/completa.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/juego_contar.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/pares.dart';
+import 'package:rena_zelda_bocchi/src/Juegocontar/sumas.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
 import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 import 'package:rive/rive.dart';
@@ -91,14 +95,37 @@ Future<void> _guardarProgreso(double estrellas) async {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MemoramaGame()),
-                );
-              },
-              child: const Text("Jugar de nuevo"),
-            ),
+  onPressed: () {
+    Widget nextGame;
+    switch (levelId) {
+      case 1:
+        nextGame = const MemoramaGame();
+        break;
+      case 2:
+        nextGame = JuegoPantalla();
+        break;
+      case 3:
+        nextGame = ContarJuego();
+        break;
+      case 4:
+        nextGame = CompletarPalabraApp();
+        break;
+      case 5:
+        nextGame = EmparejarVisual();
+        break;
+      case 6:
+        nextGame = SumasApp();
+        break;
+      default:
+        nextGame = const MemoramaGame();
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => nextGame),
+    );
+  },
+  child: const Text("Jugar de nuevo"),
+),
           ],
         ),
       ),

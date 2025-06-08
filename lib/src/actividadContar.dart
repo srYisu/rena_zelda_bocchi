@@ -7,10 +7,55 @@ import 'package:rena_zelda_bocchi/src/Juegocontar/sumas.dart';
 import 'package:rena_zelda_bocchi/src/Completapalabras/completa.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math' as Math;
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart'; // Asegúrate de importar esto
+
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 // ...existing code...
 
-class Actividadimagen extends StatelessWidget {
+class Actividadimagen extends StatefulWidget {
   const Actividadimagen({super.key});
+
+  @override
+  State<Actividadimagen> createState() => _ActividadimagenState();
+}
+
+class _ActividadimagenState extends State<Actividadimagen> with WidgetsBindingObserver, RouteAware {
+  late Future<Map<int, int>> _progresoFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _progresoFuture = _cargarProgreso();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Cuando la app vuelve a estar en primer plano, recarga el progreso
+    if (state == AppLifecycleState.resumed) {
+      _refreshProgreso();
+    }
+  }
+
+  @override
+  void didPopNext() {
+    // Se llama cuando regresas a este widget desde otra ruta (por ejemplo, usando el botón atrás del teléfono)
+    _refreshProgreso();
+  }
 
   Future<Map<int, int>> _cargarProgreso() async {
     final supabase = Supabase.instance.client;
@@ -27,10 +72,16 @@ class Actividadimagen extends StatelessWidget {
     return progreso;
   }
 
+  void _refreshProgreso() {
+    setState(() {
+      _progresoFuture = _cargarProgreso();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<int, int>>(
-      future: _cargarProgreso(),
+      future: _progresoFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -126,43 +177,42 @@ class Actividadimagen extends StatelessWidget {
   }
 
   List<Widget> _buildCards(BuildContext context, double ancho, double alto, Map<int, int> progreso) {
-    // Asigna un levelId único a cada juego/card
     final cards = [
       {
         'imagen': 'assets/images/HormigasYNumeros.png',
         'texto': 'Contar',
         'levelId': 3,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => ContarJuego())),
+        'onTap': () => _navigateAndRefresh(context, ContarJuego()),
       },
       {
         'imagen': 'assets/images/Hormigas.png',
         'texto': 'Memorama',
         'levelId': 1,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MemoramaGame())),
+        'onTap': () => _navigateAndRefresh(context, const MemoramaGame()),
       },
       {
         'imagen': 'assets/images/HormigasYNumeros.png',
         'texto': 'Puertas\ngramaticales',
         'levelId': 2,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => JuegoPantalla())),
+        'onTap': () => _navigateAndRefresh(context, JuegoPantalla()),
       },
       {
         'imagen': 'assets/images/Hormigas.png',
         'texto': 'Sumando',
         'levelId': 6,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => SumasApp())),
+        'onTap': () => _navigateAndRefresh(context, SumasApp()),
       },
       {
         'imagen': 'assets/images/HormigasYNumeros.png',
         'texto': 'Pares',
         'levelId': 5,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => EmparejarVisual())),
+        'onTap': () => _navigateAndRefresh(context, EmparejarVisual()),
       },
       {
         'imagen': 'assets/images/Hormigas.png',
         'texto': 'Jugando con\nsilabas',
         'levelId': 4,
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (context) => CompletarPalabraApp())),
+        'onTap': () => _navigateAndRefresh(context, CompletarPalabraApp()),
       },
     ];
 
@@ -177,6 +227,15 @@ class Actividadimagen extends StatelessWidget {
         estrellas: estrellas,
       );
     }).toList();
+  }
+
+  void _navigateAndRefresh(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    ).then((_) {
+      _refreshProgreso();
+    });
   }
 }
 
