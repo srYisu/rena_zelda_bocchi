@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart'; // Asegúrate de tener esta pantalla
+import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 class Carta {
   final int valor;
@@ -11,6 +11,8 @@ class Carta {
 }
 
 class EmparejarVisual extends StatefulWidget {
+  const EmparejarVisual({super.key});
+
   @override
   State<EmparejarVisual> createState() => _EmparejarVisualState();
 }
@@ -18,10 +20,15 @@ class EmparejarVisual extends StatefulWidget {
 class _EmparejarVisualState extends State<EmparejarVisual> {
   List<Carta> numeros = [];
   List<Carta> iconos = [];
-  Carta? seleccionActual;
+
+  Carta? seleccion;
 
   int aciertos = 0;
-  final int totalPares = 3;
+  int puntos = 0;
+  int ronda = 1;
+  final int totalRondas = 5;
+
+  bool errorActivo = false;
 
   @override
   void initState() {
@@ -31,105 +38,128 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
 
   void generarCartas() {
     final random = Random();
-    final valoresUnicos = <int>{};
+    final valores = <int>{};
 
-    while (valoresUnicos.length < totalPares) {
-      valoresUnicos.add(random.nextInt(5) + 1);
+    while (valores.length < 3) {
+      valores.add(random.nextInt(5) + 1);
     }
 
-    final valores = valoresUnicos.toList()..shuffle();
+    final lista = valores.toList();
 
-    setState(() {
-      numeros =
-          valores.map((v) => Carta(valor: v, esNumero: true)).toList()
-            ..shuffle();
-      iconos =
-          valores.map((v) => Carta(valor: v, esNumero: false)).toList()
-            ..shuffle();
-      seleccionActual = null;
-      aciertos = 0;
-    });
+    numeros =
+        lista.map((v) => Carta(valor: v, esNumero: true)).toList()..shuffle();
+    iconos =
+        lista.map((v) => Carta(valor: v, esNumero: false)).toList()..shuffle();
+
+    seleccion = null;
+    aciertos = 0;
   }
 
-  void manejarSeleccion(Carta carta) {
-    if (carta.emparejado) return;
+  void manejarToque(Carta carta) {
+    if (carta.emparejado || errorActivo) return;
 
-    if (seleccionActual == null) {
+    if (seleccion == null) {
       setState(() {
-        seleccionActual = carta;
+        seleccion = carta;
       });
     } else {
-      if (seleccionActual!.esNumero != carta.esNumero &&
-          seleccionActual!.valor == carta.valor) {
+      final empareja =
+          seleccion!.valor == carta.valor &&
+          seleccion!.esNumero != carta.esNumero;
+
+      if (empareja) {
         setState(() {
-          seleccionActual!.emparejado = true;
           carta.emparejado = true;
+          seleccion!.emparejado = true;
+          seleccion = null;
+          puntos++;
           aciertos++;
-          seleccionActual = null;
         });
 
-        if (aciertos == totalPares) {
-          Future.delayed(Duration(milliseconds: 500), mostrarResultado);
+        if (aciertos == 3) {
+          Future.delayed(const Duration(milliseconds: 600), () {
+            if (ronda == totalRondas) {
+              double estrellas =
+                  (((puntos / (totalRondas * 3)) * 3).clamp(
+                    0.0,
+                    3.0,
+                  )).floorToDouble();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => GameOverScreen(levelId: 5, estrellas: estrellas),
+                ),
+              );
+            } else {
+              setState(() {
+                ronda++;
+                generarCartas();
+              });
+            }
+          });
         }
       } else {
-        final previo = seleccionActual!;
         setState(() {
-          seleccionActual = null;
+          errorActivo = true;
+          puntos = max(0, puntos - 1);
         });
-        Future.delayed(const Duration(milliseconds: 400), () {
-          setState(() {}); // Para actualizar el borde
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          setState(() {
+            errorActivo = false;
+            seleccion = null;
+          });
         });
       }
     }
   }
 
-  void mostrarResultado() {
-    double estrellas = (aciertos / totalPares * 3).roundToDouble();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => GameOverScreen(levelId: 5, estrellas: estrellas),
-      ),
-    );
-  }
-
   Widget construirCarta(Carta carta) {
-    Color borde = Colors.transparent;
-    if (carta.emparejado) {
-      borde = Colors.green;
-    } else if (seleccionActual == carta) {
-      borde = Colors.blue;
-    }
+    final estaSeleccionada = seleccion == carta;
+    final estaEnError =
+        errorActivo &&
+        seleccion != null &&
+        seleccion!.valor == carta.valor &&
+        seleccion!.esNumero != carta.esNumero;
 
     return GestureDetector(
-      onTap: () => manejarSeleccion(carta),
-      child: Container(
+      onTap: () => manejarToque(carta),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.all(8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.teal[100],
+          color:
+              carta.emparejado
+                  ? Colors.green[100]
+                  : estaEnError
+                  ? Colors.red[100]
+                  : Colors.white,
+          border: Border.all(
+            color:
+                carta.emparejado
+                    ? Colors.green
+                    : estaSeleccionada
+                    ? Colors.blue
+                    : estaEnError
+                    ? Colors.red
+                    : Colors.grey,
+            width: 3,
+          ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borde, width: 3),
         ),
-        child: Center(
-          child:
-              carta.esNumero
-                  ? Text(
-                    '${carta.valor}',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                  : Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: List.generate(
-                      carta.valor,
-                      (_) => const Icon(Icons.bug_report, size: 20),
-                    ),
+        child:
+            carta.esNumero
+                ? Text('${carta.valor}', style: const TextStyle(fontSize: 28))
+                : Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: List.generate(
+                    carta.valor,
+                    (_) => const Icon(Icons.bug_report, size: 20),
                   ),
-        ),
+                ),
       ),
     );
   }
@@ -137,49 +167,38 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 16),
-            const Text(
-              '¡Haz par!',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: aciertos / totalPares,
-              backgroundColor: Colors.grey[300],
-              color: Colors.teal,
-              minHeight: 10,
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: numeros.map(construirCarta).toList(),
-                    ),
+      appBar: AppBar(title: const Text('Emparejar Visual'), centerTitle: true),
+      body: Column(
+        children: [
+          const SizedBox(height: 10),
+          Text('Ronda $ronda / $totalRondas'),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(
+            value: ronda / totalRondas,
+            color: Colors.teal,
+            minHeight: 8,
+          ),
+          const SizedBox(height: 10),
+          Text('Puntos: $puntos'),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: numeros.map(construirCarta).toList(),
                   ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: iconos.map(construirCarta).toList(),
-                    ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: iconos.map(construirCarta).toList(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: generarCartas,
-              child: const Text('Reiniciar'),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
