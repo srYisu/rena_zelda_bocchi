@@ -12,8 +12,9 @@ class Actividadimagen extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLargeScreen = constraints.maxWidth >= 800;
-        final double cardWidth = isLargeScreen ? 260 : 200;
-        final double cardHeight = isLargeScreen ? 280 : 220;
+        final crossAxisCount = isLargeScreen ? 3 : 2;
+        final double cardWidth = isLargeScreen ? 220 : 160;
+        final double cardHeight = isLargeScreen ? 240 : 200;
 
         return Stack(
           children: [
@@ -25,44 +26,67 @@ class Actividadimagen extends StatelessWidget {
               ),
             ),
 
-            // Contenido con SafeArea y scroll para evitar overflow
+            // Contenido
             SafeArea(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(top: isLargeScreen ? 120 : 60),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          '¡Elige una actividad!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-
-                        // Contenedor de tarjetas
-                        SizedBox(
-                          width: isLargeScreen ? 860 : double.infinity,
-                          child: Wrap(
-                            spacing: 20,
-                            runSpacing: 20,
-                            alignment: WrapAlignment.center,
-                            children: _buildCards(
-                              context,
-                              cardWidth,
-                              cardHeight,
-                            ),
-                          ),
-                        ),
-                      ],
+              child: Padding(
+                padding: const EdgeInsets.only(top: 40),
+                child: Column(
+                  children: [
+                    const Text(
+                      '¡Elige una actividad!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: LayoutBuilder(
+                            builder: (context, innerConstraints) {
+                              final items = _buildCards(
+                                context,
+                                cardWidth,
+                                cardHeight,
+                              );
+                              final itemHeightWithSpacing = cardHeight + 20;
+                              final rows =
+                                  (items.length / crossAxisCount).ceil();
+                              final totalHeightNeeded =
+                                  rows * itemHeightWithSpacing + 20;
+
+                              if (totalHeightNeeded <
+                                  innerConstraints.maxHeight) {
+                                // Caben en pantalla, no usar scroll
+                                return Wrap(
+                                  spacing: 20,
+                                  runSpacing: 20,
+                                  alignment: WrapAlignment.center,
+                                  children: items,
+                                );
+                              } else {
+                                // Usar GridView con scroll
+                                return GridView.count(
+                                  crossAxisCount: crossAxisCount,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 20,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  childAspectRatio: cardWidth / cardHeight,
+                                  children: items,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -100,7 +124,7 @@ class Actividadimagen extends StatelessWidget {
       ),
       ActividadCard(
         imagen: 'assets/images/HormigasYNumeros.png',
-        texto: 'Puertas gramaticales',
+        texto: 'Puertas\ngramaticales',
         ancho: ancho,
         alto: alto,
         onTap: () {
@@ -158,67 +182,44 @@ class ActividadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double imagenSize = ancho - 50;
+    final double imagenSize = ancho - 40;
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: ancho,
         height: alto,
-        clipBehavior: Clip.antiAlias,
-        decoration: const BoxDecoration(),
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: Container(
-                  width: imagenSize,
-                  height: imagenSize,
-                  decoration: ShapeDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment(0.5, 0.0),
-                      end: Alignment(0.5, 1.0),
-                      colors: [Color(0xFF05D090), Color(0xFF026A49)],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                  ),
+            Container(
+              width: imagenSize,
+              height: imagenSize,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF05D090), Color(0xFF026A49)],
                 ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(imagen, fit: BoxFit.contain),
               ),
             ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    width: imagenSize,
-                    height: imagenSize,
-                    child: Image.asset(imagen, fit: BoxFit.contain),
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    texto,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                texto,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
