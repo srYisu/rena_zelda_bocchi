@@ -109,7 +109,7 @@ class _MemoramaGameState extends State<MemoramaGame> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => GameOverScreen(intentos: _intentos),
+                builder: (context) => GameOverScreen(intentos: _intentos, levelId: 1,),
               ),
             );
           });

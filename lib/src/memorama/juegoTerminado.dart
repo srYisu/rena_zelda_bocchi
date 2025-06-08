@@ -6,8 +6,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GameOverScreen extends StatelessWidget {
   final int intentos;
+  final int levelId;
 
-  const GameOverScreen({super.key, required this.intentos});
+  const GameOverScreen({super.key, required this.intentos, required this.levelId});
 
 Future<void> _guardarProgreso(double estrellas) async {
   final supabase = Supabase.instance.client;
@@ -18,7 +19,6 @@ Future<void> _guardarProgreso(double estrellas) async {
     return;
   }
 
-  const levelId = 1; // Este es el nivel actual
 
   try {
     // Paso 1: Leer el progreso existente
@@ -54,10 +54,12 @@ Future<void> _guardarProgreso(double estrellas) async {
 
   @override
   Widget build(BuildContext context) {
-    String message;
-    double estrellas;
+    String message = "¡Buen intento!";
+    double estrellas = 0;
 
-    if (intentos <= 12) {
+    switch(levelId){
+      case 1:
+      if (intentos <= 12) {
       message = "¡Excelente memoria!";
       estrellas = 3;
     } else if (intentos <= 18) {
@@ -66,6 +68,7 @@ Future<void> _guardarProgreso(double estrellas) async {
     } else {
       message = "¡Puedes mejorar!";
       estrellas = 1;
+    }
     }
 
     // Llama a la función al construir el widget

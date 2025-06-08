@@ -13,6 +13,7 @@ dependencies:
   audioplayers: ^6.4.0
   supabase_flutter: ^2.9.0
   sign_in_with_apple: ^7.0.1
+  google_sign_in: ^6.3.0
 
 dev_dependencies:
   flutter_test:
