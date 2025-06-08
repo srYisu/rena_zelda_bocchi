@@ -12,8 +12,9 @@ class Actividadimagen extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLargeScreen = constraints.maxWidth >= 800;
-        final double cardWidth = isLargeScreen ? 260 : 180;
-        final double cardHeight = isLargeScreen ? 280 : 220;
+        final crossAxisCount = isLargeScreen ? 3 : 2;
+        final double cardWidth = isLargeScreen ? 220 : 160;
+        final double cardHeight = isLargeScreen ? 240 : 200;
 
         return Stack(
           children: [
@@ -28,7 +29,7 @@ class Actividadimagen extends StatelessWidget {
             // Contenido
             SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(top: isLargeScreen ? 100 : 40),
+                padding: const EdgeInsets.only(top: 40),
                 child: Column(
                   children: [
                     const Text(
@@ -42,13 +43,47 @@ class Actividadimagen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Expanded(
-                      child: GridView.count(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                        childAspectRatio: cardWidth / cardHeight,
-                        children: _buildCards(context, cardWidth, cardHeight),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: LayoutBuilder(
+                            builder: (context, innerConstraints) {
+                              final items = _buildCards(
+                                context,
+                                cardWidth,
+                                cardHeight,
+                              );
+                              final itemHeightWithSpacing = cardHeight + 20;
+                              final rows =
+                                  (items.length / crossAxisCount).ceil();
+                              final totalHeightNeeded =
+                                  rows * itemHeightWithSpacing + 20;
+
+                              if (totalHeightNeeded <
+                                  innerConstraints.maxHeight) {
+                                // Caben en pantalla, no usar scroll
+                                return Wrap(
+                                  spacing: 20,
+                                  runSpacing: 20,
+                                  alignment: WrapAlignment.center,
+                                  children: items,
+                                );
+                              } else {
+                                // Usar GridView con scroll
+                                return GridView.count(
+                                  crossAxisCount: crossAxisCount,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 20,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  childAspectRatio: cardWidth / cardHeight,
+                                  children: items,
+                                );
+                              }
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -89,7 +124,7 @@ class Actividadimagen extends StatelessWidget {
       ),
       ActividadCard(
         imagen: 'assets/images/HormigasYNumeros.png',
-        texto: 'Puertas gramaticales',
+        texto: 'Puertas\ngramaticales',
         ancho: ancho,
         alto: alto,
         onTap: () {
@@ -147,13 +182,13 @@ class ActividadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double imagenSize = ancho - 50;
+    final double imagenSize = ancho - 40;
 
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
         width: ancho,
-        height: alto, // <-- Aquí fijamos la altura total
+        height: alto,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
