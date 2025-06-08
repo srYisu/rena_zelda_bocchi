@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart'; // Asegúrate de tener esta pantalla
 
 class Carta {
   final int valor;
@@ -17,8 +18,10 @@ class EmparejarVisual extends StatefulWidget {
 class _EmparejarVisualState extends State<EmparejarVisual> {
   List<Carta> numeros = [];
   List<Carta> iconos = [];
-
   Carta? seleccionActual;
+
+  int aciertos = 0;
+  final int totalPares = 3;
 
   @override
   void initState() {
@@ -30,7 +33,7 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
     final random = Random();
     final valoresUnicos = <int>{};
 
-    while (valoresUnicos.length < 3) {
+    while (valoresUnicos.length < totalPares) {
       valoresUnicos.add(random.nextInt(5) + 1);
     }
 
@@ -44,6 +47,7 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
           valores.map((v) => Carta(valor: v, esNumero: false)).toList()
             ..shuffle();
       seleccionActual = null;
+      aciertos = 0;
     });
   }
 
@@ -60,19 +64,33 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
         setState(() {
           seleccionActual!.emparejado = true;
           carta.emparejado = true;
+          aciertos++;
           seleccionActual = null;
         });
+
+        if (aciertos == totalPares) {
+          Future.delayed(Duration(milliseconds: 500), mostrarResultado);
+        }
       } else {
-        // Mostrar error brevemente
         final previo = seleccionActual!;
         setState(() {
           seleccionActual = null;
         });
         Future.delayed(const Duration(milliseconds: 400), () {
-          setState(() {}); // Redibujar para quitar bordes si los usas
+          setState(() {}); // Para actualizar el borde
         });
       }
     }
+  }
+
+  void mostrarResultado() {
+    double estrellas = (aciertos / totalPares * 3).roundToDouble();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GameOverScreen(levelId: 5, estrellas: estrellas),
+      ),
+    );
   }
 
   Widget construirCarta(Carta carta) {
@@ -127,6 +145,13 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
             const Text(
               '¡Haz par!',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: aciertos / totalPares,
+              backgroundColor: Colors.grey[300],
+              color: Colors.teal,
+              minHeight: 10,
             ),
             const SizedBox(height: 16),
             Expanded(

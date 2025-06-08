@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'palabras_data.dart'; // archivo externo con las palabras
+import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 void main() => runApp(CompletarPalabraApp());
 
@@ -61,40 +62,32 @@ class _JuegoCompletarPalabraState extends State<JuegoCompletarPalabra> {
       if (indiceActual < palabrasJuego.length - 1) {
         indiceActual++;
       } else {
-        mostrarResultado();
+        finalizarJuego();
       }
       bloqueado = false;
     });
   }
 
-  void mostrarResultado() {
-    int estrellas = (puntaje / palabrasJuego.length * 3).round();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (_) => AlertDialog(
-            title: Text("¡Juego terminado!"),
-            content: Text(
-              "Obtuviste $estrellas estrella(s) de 3\nPuntaje: $puntaje / ${palabrasJuego.length}",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    indiceActual = 0;
-                    puntaje = 0;
-                    palabrasJuego = List.of(BancoPalabras.obtenerPalabras())
-                      ..shuffle();
-                    palabrasJuego = palabrasJuego.take(5).toList();
-                    Navigator.of(context).pop();
-                  });
-                },
-                child: Text("Reiniciar"),
+  void finalizarJuego() {
+    double calcularEstrellas(int puntos) {
+      if (puntos >= 5) return 3;
+      if (puntos >= 3) return 2;
+      if (puntos >= 1) return 1;
+      return 0;
+    }
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => GameOverScreen(
+                levelId: 4, // Cambia este ID si es otro nivel
+                estrellas: calcularEstrellas(puntaje),
               ),
-            ],
-          ),
-    );
+        ),
+      );
+    });
   }
 
   @override
