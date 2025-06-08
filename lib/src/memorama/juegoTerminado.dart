@@ -1,87 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
+import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 import 'package:rive/rive.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class GameOverScreen extends StatefulWidget {
+class GameOverScreen extends StatelessWidget {
   final int levelId;
   final double estrellas;
 
   const GameOverScreen({super.key, required this.levelId, required this.estrellas});
 
-  @override
-  State<GameOverScreen> createState() => _GameOverScreenState();
+Future<void> _guardarProgreso(double estrellas) async {
+  final supabase = Supabase.instance.client;
+  final user = supabase.auth.currentUser;
+
+  if (user == null) {
+    print("Usuario no autenticado");
+    return;
+  }
+
+  try {
+    // Paso 1: Leer el progreso existente
+    final existing = await supabase
+        .from('progress')
+        .select('stars')
+        .eq('user_id', user.id)
+        .eq('level_id', levelId)
+        .maybeSingle();
+
+    final existingStars = existing?['stars'] ?? 0;
+
+    if (estrellas > existingStars) {
+      await supabase.from('progress').upsert(
+        {
+          'user_id': user.id, // CORREGIDO: usar user.id, no user completo
+          'level_id': levelId,
+          'stars': estrellas.toInt(), // Guarda como entero
+        },
+        onConflict: 'user_id, level_id' // CORREGIDO: usar como parámetro de upsert
+      );
+
+      print("✅ Progreso actualizado: ${estrellas.toInt()} estrellas");
+    } else {
+      print("ℹ️ Progreso no actualizado (ya tenía igual o más estrellas)");
+    }
+  } catch (e) {
+    print("❌ Error al guardar progreso: $e");
+  }
 }
 
-class _GameOverScreenState extends State<GameOverScreen> {
-  SMINumber? _input;
-  Artboard? _artboard;
-  bool _delayDone = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _guardarProgresoYAnimar();
-  }
-
-  Future<void> _guardarProgresoYAnimar() async {
-    await _guardarProgreso(widget.estrellas);
-    await Future.delayed(const Duration(seconds: 1));
-    _delayDone = true;
-    if (_input != null) {
-      _input!.change(widget.estrellas);
-    }
-  }
-
-  Future<void> _guardarProgreso(double estrellas) async {
-    final supabase = Supabase.instance.client;
-    final user = supabase.auth.currentUser;
-
-    if (user == null) {
-      print("Usuario no autenticado");
-      return;
-    }
-
-    try {
-      final existing = await supabase
-          .from('progress')
-          .select('stars')
-          .eq('user_id', user.id)
-          .eq('level_id', widget.levelId)
-          .maybeSingle();
-
-      final existingStars = existing?['stars'] ?? 0;
-
-      if (estrellas > existingStars) {
-        await supabase.from('progress').upsert(
-          {
-            'user_id': user.id,
-            'level_id': widget.levelId,
-            'stars': estrellas.toInt(),
-          },
-          onConflict: 'user_id, level_id'
-        );
-        print("✅ Progreso actualizado: ${estrellas.toInt()} estrellas");
-      } else {
-        print("ℹ️ Progreso no actualizado (ya tenía igual o más estrellas)");
-      }
-    } catch (e) {
-      print("❌ Error al guardar progreso: $e");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     String message = "";
-    if (widget.estrellas == 3) {
+    if (estrellas == 3){
       message = "¡Excelente trabajo!";
-    } else if (widget.estrellas == 2) {
+    }else if (estrellas == 2){
       message = "¡Buen trabajo!";
-    } else if (widget.estrellas == 1) {
+    }else if (estrellas == 1){
       message = "¡Puedes hacerlo mejor!";
-    } else {
-      message = "¡Inténtalo de nuevo!";
-    }
+    }else{
+      message = "¡Inténtalo de nuevo!";}
+    // Llama a la función al construir el widget
+    _guardarProgreso(estrellas);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Resultado")),
@@ -101,13 +83,9 @@ class _GameOverScreenState extends State<GameOverScreen> {
                   final controller = StateMachineController.fromArtboard(artboard, 'State Machine 1');
                   if (controller != null) {
                     artboard.addController(controller);
-                    _input = controller.findInput<double>('nEstrellas') as SMINumber?;
-                    // Si el delay ya terminó, dispara la animación ahora
-                    if (_delayDone && _input != null) {
-                      _input!.change(widget.estrellas);
-                    }
+                    final input = controller.findInput<double>('nEstrellas') as SMINumber?;
+                    input?.change(estrellas);
                   }
-                  _artboard = artboard;
                 },
               ),
             ),
