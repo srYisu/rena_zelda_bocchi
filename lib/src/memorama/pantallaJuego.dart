@@ -33,13 +33,13 @@ class _MemoramaGameState extends State<MemoramaGame> {
   MemoramaCard? _firstFlipped;
   bool _wait = false;
   int _intentos = 0;
+  double estrellas = 0;
 
   @override
   void initState() {
     super.initState();
     _cards = _generateCards();
   }
-
   List<MemoramaCard> _generateCards() {
     final items = <Map<String, dynamic>>[
       {'id': 'casa', 'image': Icons.house, 'word': 'Casa'},
@@ -105,11 +105,22 @@ class _MemoramaGameState extends State<MemoramaGame> {
         });
 
         if (_cards.every((card) => card.isMatched)) {
+          if(_intentos <= 14){
+            estrellas = 3;
+          }
+          else if(_intentos <= 18){
+            estrellas = 2;
+          }
+          else if(_intentos <= 22){
+            estrellas = 1;
+          } else {
+            estrellas = 0;
+          }
           Future.delayed(const Duration(milliseconds: 800), () {
-            Navigator.pushReplacement(
+            Navigator.pushReplacement( 
               context,
               MaterialPageRoute(
-                builder: (context) => GameOverScreen(intentos: _intentos, levelId: 1,),
+                builder: (context) => GameOverScreen(levelId: 1, estrellas: estrellas ),
               ),
             );
           });

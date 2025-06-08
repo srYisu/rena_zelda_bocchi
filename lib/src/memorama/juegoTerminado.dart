@@ -5,10 +5,10 @@ import 'package:rive/rive.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GameOverScreen extends StatelessWidget {
-  final int intentos;
   final int levelId;
+  final double estrellas;
 
-  const GameOverScreen({super.key, required this.intentos, required this.levelId});
+  const GameOverScreen({super.key, required this.levelId, required this.estrellas});
 
 Future<void> _guardarProgreso(double estrellas) async {
   final supabase = Supabase.instance.client;
@@ -18,7 +18,6 @@ Future<void> _guardarProgreso(double estrellas) async {
     print("Usuario no autenticado");
     return;
   }
-
 
   try {
     // Paso 1: Leer el progreso existente
@@ -54,23 +53,15 @@ Future<void> _guardarProgreso(double estrellas) async {
 
   @override
   Widget build(BuildContext context) {
-    String message = "¡Buen intento!";
-    double estrellas = 0;
-
-    switch(levelId){
-      case 1:
-      if (intentos <= 12) {
-      message = "¡Excelente memoria!";
-      estrellas = 3;
-    } else if (intentos <= 18) {
-      message = "¡Muy bien!";
-      estrellas = 2;
-    } else {
-      message = "¡Puedes mejorar!";
-      estrellas = 1;
-    }
-    }
-
+    String message = "";
+    if (estrellas == 3){
+      message = "¡Excelente trabajo!";
+    }else if (estrellas == 2){
+      message = "¡Buen trabajo!";
+    }else if (estrellas == 1){
+      message = "¡Puedes hacerlo mejor!";
+    }else{
+      message = "¡Inténtalo de nuevo!";}
     // Llama a la función al construir el widget
     _guardarProgreso(estrellas);
 
@@ -80,7 +71,6 @@ Future<void> _guardarProgreso(double estrellas) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Puntuación: $intentos", style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 20),
             Text(message, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),

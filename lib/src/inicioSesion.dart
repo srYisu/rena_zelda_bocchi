@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rena_zelda_bocchi/src/actividadContar.dart';
@@ -9,22 +11,64 @@ class Iniciosesion extends StatefulWidget {
 }
 
 class _Iniciosesion extends State<Iniciosesion> {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email'], 
-    serverClientId: '347514460071-j2hnsqvnir7bb2jkf4lor34ola3gj9s7.apps.googleusercontent.com'
-  );
+  GoogleSignIn? _googleSignIn;
+
   String? userId;
   String? nombre;
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
+
+  // 🔁 Espera cambios de sesión
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    final event = data.event;
+    final session = data.session;
+
+    if (event == AuthChangeEvent.signedIn && session != null) {
+      print('✅ Sesión restaurada desde redirect');
+      setState(() {
+        userId = session.user.id;
+        nombre = session.user.userMetadata?['full_name'] ?? 'Niño';
+      });
+    }
+  });
+
+  // ⚠️ Solo autoLogin si no hay sesión activa
+  final session = Supabase.instance.client.auth.currentSession;
+  final user = Supabase.instance.client.auth.currentUser;
+
+  if (session == null || user == null) {
     _autoLogin();
+  } else {
+    print('✅ Ya había sesión: ${user.email}');
+    userId = user.id;
+    nombre = user.userMetadata?['full_name'] ?? 'Niño';
   }
+}
+
 
   Future<void> _autoLogin() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
+      if (kIsWeb) {
+  final redirectUrl = Uri.base.origin + '/';
+  await Supabase.instance.client.auth.signInWithOAuth(
+    OAuthProvider.google,
+    redirectTo: redirectUrl,
+  );
+  print("🔁 Redireccionando a login...");
+  return;
+}
+
+
+      // 📱 Android / iOS: Usa GoogleSignIn
+      _googleSignIn = GoogleSignIn(
+        scopes: ['email'],
+        serverClientId:
+            '347514460071-j2hnsqvnir7bb2jkf4lor34ola3gj9s7.apps.googleusercontent.com', // Android OAuth
+      );
+
+      final googleUser = await _googleSignIn!.signIn();
       if (googleUser == null) {
         print("❌ Usuario canceló el inicio");
         return;
@@ -58,7 +102,9 @@ class _Iniciosesion extends State<Iniciosesion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Actividadimagen()
+      body: userId != null
+          ? Actividadimagen()
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }
