@@ -128,17 +128,23 @@ class _JuegoPantallaState extends State<JuegoPantalla>
     });
   }
 
-  Widget buildPuerta(String opcion) {
+  Widget buildPuerta(String opcion, double anchoPantalla) {
     bool esCorrecta = opcion == correcta;
     bool fueSeleccionada = mostrandoResultado && opcion == opcionSeleccionada;
     bool mostrarAbierta = fueSeleccionada && esCorrecta;
-
     bool esErronea = opcion == _puertaErronea;
+
+    double anchoPuerta =
+        anchoPantalla > 700
+            ? 260
+            : (MediaQuery.of(context).orientation == Orientation.portrait
+                ? 130
+                : 100);
 
     Widget puerta = Image.asset(
       mostrarAbierta ? 'assets/images/popen.png' : 'assets/images/pclosed.png',
       key: ValueKey(mostrarAbierta),
-      width: 100,
+      width: anchoPuerta,
     );
 
     if (esErronea && mostrandoResultado) {
@@ -155,14 +161,41 @@ class _JuegoPantallaState extends State<JuegoPantalla>
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.lightGreenAccent,
-            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              colors: [Colors.lightGreenAccent, Colors.greenAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                offset: Offset(0, 4),
+                blurRadius: 6,
+              ),
+            ],
+            border: Border.all(color: Colors.green.shade700, width: 2),
           ),
-          child: Text(opcion, style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(
+            opcion,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.green.shade900,
+              shadows: [
+                Shadow(
+                  offset: Offset(1, 1),
+                  blurRadius: 2,
+                  color: Colors.black26,
+                ),
+              ],
+            ),
+          ),
         ),
-        SizedBox(height: 6),
         GestureDetector(
           onTap: mostrandoResultado ? null : () => verificarRespuesta(opcion),
           child: AnimatedSwitcher(
@@ -202,86 +235,107 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       finalizarJuego();
     }
 
+    final anchoPantalla = MediaQuery.of(context).size.width;
+    final bool pantallaAncha = anchoPantalla > 700;
+
     return Scaffold(
       appBar: AppBar(title: Text("Juego de Puertas")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/FondoPuertas.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Column(
             children: [
-              // Barra de tiempo
-              Row(
-                children: [
-                  Icon(Icons.timer, color: Colors.red),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: LinearProgressIndicator(
-                      value: tiempoRestante / tiempoMaximo,
-                      minHeight: 12,
-                      backgroundColor: Colors.red.shade100,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.redAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-
-              // Barra de progreso de puntaje con texto
-              Row(
-                children: [
-                  Icon(Icons.star, color: Colors.amber),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: TweenAnimationBuilder<double>(
-                      duration: Duration(milliseconds: 500),
-                      tween: Tween<double>(begin: 0, end: puntos / 10),
-                      builder: (context, value, _) {
-                        return LinearProgressIndicator(
-                          value: value,
-                          minHeight: 12,
-                          backgroundColor: Colors.amber.shade100,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.amber,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.timer, color: Colors.red),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: LinearProgressIndicator(
+                            value: tiempoRestante / tiempoMaximo,
+                            minHeight: 12,
+                            backgroundColor: Colors.red.shade100,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.redAccent,
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    '$puntos/10',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ],
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.amber),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: TweenAnimationBuilder<double>(
+                            duration: Duration(milliseconds: 500),
+                            tween: Tween<double>(begin: 0, end: puntos / 10),
+                            builder: (context, value, _) {
+                              return LinearProgressIndicator(
+                                value: value,
+                                minHeight: 12,
+                                backgroundColor: Colors.amber.shade100,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.amber,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '$puntos/10',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 30),
-
-              // Puertas
+              SizedBox(height: pantallaAncha ? 220 : 60),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildPuerta(opcionesDesordenadas[0]),
-                  buildPuerta(opcionesDesordenadas[1]),
+                  buildPuerta(opcionesDesordenadas[0], anchoPantalla),
+                  buildPuerta(opcionesDesordenadas[1], anchoPantalla),
                 ],
               ),
-              SizedBox(height: 30),
-
-              // Icono central
-              Icon(preguntaActual.icono, size: 120, color: Colors.deepPurple),
-              SizedBox(height: 40),
-
-              // Contador de pregunta
-              Text(
-                'Pregunta ${min(preguntasRespondidas + (mostrandoResultado ? 0 : 1), 10)} de 10',
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(height: 10),
             ],
           ),
-        ),
+          Center(
+            child: Icon(
+              preguntaActual.icono,
+              size: 120,
+              color: Colors.deepPurple,
+            ),
+          ),
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                '${min(preguntasRespondidas + (mostrandoResultado ? 0 : 1), 10)} de 10',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
