@@ -317,11 +317,38 @@ class _JuegoPantallaState extends State<JuegoPantalla>
             ],
           ),
           Center(
-            child: Icon(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 180),
+                AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve:  Curves.easeInOut,
+              decoration: BoxDecoration(
+                color: const Color(0xFFf0d3a6).withOpacity(1),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.grey[700]!,
+                  width: 3,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Icon(
               preguntaActual.icono,
               size: 120,
-              color: Colors.deepPurple,
+              color: const Color.fromARGB(255, 199, 64, 54),
+              //color: const Color.fromARGB(255, 223, 169, 23),
             ),
+            )
+              ],
+            )
           ),
           Positioned(
             bottom: 24,
