@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'palabras_data.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() => runApp(CompletarPalabraApp());
 
@@ -22,6 +23,7 @@ class JuegoCompletarPalabra extends StatefulWidget {
 }
 
 class _JuegoCompletarPalabraState extends State<JuegoCompletarPalabra> {
+  final FlutterTts _flutterTts = FlutterTts();
   final Random _random = Random();
   final AudioPlayer _audioPlayer = AudioPlayer();
   int indiceActual = 0;
@@ -36,56 +38,85 @@ class _JuegoCompletarPalabraState extends State<JuegoCompletarPalabra> {
     super.initState();
     palabrasJuego = List.of(BancoPalabras.obtenerPalabras())..shuffle();
     palabrasJuego = palabrasJuego.take(5).toList();
+    _initTts();
+    _speak("Selecciona la letra correcta para completar la palabra");
+    _speakPalabraActual();
+  }
+        void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+  Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
+
+void _speakPalabraActual() {
+  final palabra = palabrasJuego[indiceActual];
+  final completa = palabra.incompleta.replaceAll("_", "") + palabra.correcta;
+  _speak(completa);
+}
+String? seleccionTemporal; // Guarda la letra que se clicó la primera vez
+
+void verificarRespuesta(String seleccion) async {
+  if (bloqueado) return;
+
+  final palabra = palabrasJuego[indiceActual];
+
+  // Si es la primera vez que se selecciona esta letra
+  if (seleccionTemporal != seleccion) {
+    seleccionTemporal = seleccion;
+
+    String palabraFormada = palabra.incompleta.replaceAll("_", "") + seleccion; // Ej: "so" + "l" = "sol"
+
+
+    await _flutterTts.stop();
+    await _flutterTts.speak("La palabra es: $palabraFormada");
+
+    return; // NO continúa a verificar todavía
   }
 
-  void verificarRespuesta(String seleccion) async {
-    if (bloqueado) return;
-    bloqueado = true;
-    final palabra = palabrasJuego[indiceActual];
-    bool esCorrecto = seleccion == palabra.correcta;
+  // Segunda vez que se da clic a la misma letra: ahora verifica
+  bloqueado = true;
 
-    setState(() {
-      feedbackColor =
-          esCorrecto
-              ? Colors.green.withOpacity(0.3)
-              : Colors.red.withOpacity(0.3);
-    });
+  final esCorrecto = seleccion == palabra.correcta;
 
-    if (esCorrecto) {
-      puntaje++;
-      palabraMostrada = palabra.incompleta.replaceAll("_", "") + seleccion;
-      await _audioPlayer.setVolume(0.1);
-      await _audioPlayer.play(AssetSource('sounds/correct.mp3'));
-      // Espera a que termine el audio antes de subir el volumen
-      _audioPlayer.onPlayerComplete.listen((event) async {
-        await _audioPlayer.setVolume(1.0);
-      });
+  setState(() {
+    feedbackColor = esCorrecto
+        ? Colors.green.withOpacity(0.3)
+        : Colors.red.withOpacity(0.3);
+    palabraMostrada = palabra.incompleta.replaceAll("_", "") + seleccion;
+  });
 
-      setState(() {});
-      await Future.delayed(Duration(milliseconds: 700));
+  if (esCorrecto) {
+    puntaje++;
+    await _audioPlayer.setVolume(0.1);
+    await _audioPlayer.play(AssetSource('sounds/correct.mp3'));
+  } else {
+    await _audioPlayer.setVolume(0.05);
+    await _audioPlayer.play(AssetSource('sounds/incorrect.mp3'));
+  }
+
+  await Future.delayed(Duration(milliseconds: 700));
+
+  setState(() {
+    feedbackColor = Colors.transparent;
+    palabraMostrada = null;
+    seleccionTemporal = null;
+
+    if (indiceActual < palabrasJuego.length - 1) {
+      indiceActual++;
+      _speakPalabraActual(); // Habla la siguiente palabra
     } else {
-      await _audioPlayer.setVolume(0.05);
-      await _audioPlayer.play(AssetSource('sounds/incorrect.mp3'));
-
-      // Espera a que termine el audio antes de subir el volumen
-      _audioPlayer.onPlayerComplete.listen((event) async {
-        await _audioPlayer.setVolume(1.0);
-      });
-
-      await Future.delayed(Duration(milliseconds: 500));
+      finalizarJuego();
     }
 
-    setState(() {
-      feedbackColor = Colors.transparent;
-      palabraMostrada = null;
-      if (indiceActual < palabrasJuego.length - 1) {
-        indiceActual++;
-      } else {
-        finalizarJuego();
-      }
-      bloqueado = false;
-    });
-  }
+    bloqueado = false;
+  });
+}
+
 
   void finalizarJuego() {
     double calcularEstrellas(int puntos) {
