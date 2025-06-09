@@ -1,43 +1,61 @@
-// palabras_data.dart
+import 'package:flutter/material.dart';
 
 class Palabra {
   final String incompleta;
   final List<String> opciones;
   final String correcta;
+  final IconData icono;
 
-  Palabra(this.incompleta, this.opciones, this.correcta);
+  Palabra(this.incompleta, this.opciones, this.correcta, this.icono);
 }
 
 class BancoPalabras {
   static List<Palabra> obtenerPalabras() {
     return [
-      Palabra("GA__", ["TO", "LL", "ZO"], "TO"), // GATO (GA + TO)
-      Palabra("PA__", ["TO", "PO", "ZO"], "TO"), // PATO (PA + TO)
-      Palabra("PE__", ["ZO", "LO", "ÑO"], "RO"), // PERRO (PE + RO)
-      Palabra("CO__JO", [
-        "NE",
-        "LA",
-        "SA",
-      ], "NE"), // CONEJO (CO + NE) *opción más corta*
-      Palabra("CA___", ["RRO", "LPO", "MFO"], "RRO"), // CARRO (CA + RRO)
-      Palabra("SO_", ["L", "N", "R"], "L"), // SOL (SO + L)
-      Palabra("ME__", ["SA", "LA", "CA"], "SA"), // MESA (ME + SA)
-      Palabra("CA__", ["SA", "LA", "BA"], "SA"), // CASA (CA + SA)
-      Palabra("LU__", ["Z", "S", "N"], "Z"), // LUZ (LU + Z)
-      Palabra("RE__", ["LOJ", "LAS", "CAS"], "LOJ"), // RELOJ (RE + LO)
-      Palabra("MAN____", [
+      Palabra("PA__", ["RO", "TA", "ÑO"], "TA", Icons.pets), // PERRO
+      Palabra(
+        "CA___",
+        ["RRO", "LPO", "MFO"],
+        "RRO",
+        Icons.directions_car,
+      ), // CARRO
+      Palabra("SO_", ["L", "N", "R"], "L", Icons.wb_sunny), // SOL
+      Palabra("ME__", ["SA", "LA", "CA"], "SA", Icons.table_bar), // MESA
+      Palabra("CA__", ["SA", "LA", "BA"], "SA", Icons.house), // CASA
+      Palabra("LU__", ["Z", "S", "N"], "Z", Icons.lightbulb), // LUZ
+      Palabra("RE__", ["LOJ", "LAS", "CAS"], "LOJ", Icons.watch), // RELOJ
+      Palabra(
+        "MAN____",
+        ["ZANA", "DANA", "TANA"],
         "ZANA",
-        "DANA",
-        "TANA",
-      ], "ZANA"), // MANZANA (MAN + ZANA)
-      Palabra("PI__", ["ÑA", "SA", "MA"], "ÑA"), // PIÑA (PI + ÑA)
-      Palabra("U__", ["VA", "MA", "LA"], "VA"), // UVA (U + VA)
-      Palabra("CO___", ["RRE", "TA", "MERA"], "RRE"), // CORRER (CO + RRER)
-      Palabra("JU___", ["GAR", "MAR", "SAR"], "GAR"), // JUGAR (JU + GAR)
-      Palabra("CA____", ["NTAR", "MISA", "LOTE"], "NTAR"), // CANTAR (CA + NTAR)
-      Palabra("PEN___", ["SAR", "PAR", "CAR"], "SAR"), // PENSAR (PEN + SAR)
-      Palabra("BA___", ["LON", "RIN", "LAR"], "LON"), // BALÓN (BA + LON)
-      Palabra("PE___", ["SAR", "CON", "LOR"], "SAR"), // SAR (PE + SAR)
+        Icons.apple,
+      ), // MANZANA
+      Palabra("PI__", ["ZZA", "SA", "MA"], "ZZA", Icons.local_pizza), //
+      Palabra(
+        "CO___",
+        ["RRE", "TA", "MERA"],
+        "RRE",
+        Icons.run_circle,
+      ), // CORRER
+      Palabra(
+        "JU___",
+        ["GAR", "MAR", "SAR"],
+        "GAR",
+        Icons.videogame_asset,
+      ), // JUGAR
+      Palabra("CA____", ["NTAR", "MIS", "LOTE"], "NTAR", Icons.mic), // CANTAR
+      Palabra(
+        "PEN___",
+        ["SAR", "PAR", "CAR"],
+        "SAR",
+        Icons.psychology,
+      ), // PENSAR
+      Palabra(
+        "BA___",
+        ["LON", "RIN", "LAR"],
+        "LON",
+        Icons.sports_soccer,
+      ), // BALÓN
     ];
   }
 }
