@@ -20,7 +20,8 @@ class Actividadimagen extends StatefulWidget {
   State<Actividadimagen> createState() => _ActividadimagenState();
 }
 
-class _ActividadimagenState extends State<Actividadimagen> with WidgetsBindingObserver, RouteAware {
+class _ActividadimagenState extends State<Actividadimagen>
+    with WidgetsBindingObserver, RouteAware {
   late Future<Map<int, int>> _progresoFuture;
 
   @override
@@ -177,40 +178,45 @@ class _ActividadimagenState extends State<Actividadimagen> with WidgetsBindingOb
     );
   }
 
-  List<Widget> _buildCards(BuildContext context, double ancho, double alto, Map<int, int> progreso) {
+  List<Widget> _buildCards(
+    BuildContext context,
+    double ancho,
+    double alto,
+    Map<int, int> progreso,
+  ) {
     final cards = [
       {
-        'imagen': 'assets/images/HormigasYNumeros.png',
+        'imagen': 'assets/images/IconoContar.png',
         'texto': 'Contar',
         'levelId': 3,
         'onTap': () => _navigateAndRefresh(context, ContarJuego()),
       },
       {
-        'imagen': 'assets/images/Hormigas.png',
+        'imagen': 'assets/images/IconoMemorama.png',
         'texto': 'Memorama',
         'levelId': 1,
         'onTap': () => _navigateAndRefresh(context, const MemoramaGame()),
       },
       {
-        'imagen': 'assets/images/HormigasYNumeros.png',
+        'imagen': 'assets/images/IconoPuertas.png',
         'texto': 'Puertas\ngramaticales',
         'levelId': 2,
         'onTap': () => _navigateAndRefresh(context, JuegoPantalla()),
       },
       {
-        'imagen': 'assets/images/Hormigas.png',
+        'imagen': 'assets/images/IconoSumando.png',
         'texto': 'Sumando',
         'levelId': 6,
         'onTap': () => _navigateAndRefresh(context, SumasApp()),
       },
       {
-        'imagen': 'assets/images/HormigasYNumeros.png',
+        'imagen': 'assets/images/IconoPares.png',
         'texto': 'Pares',
         'levelId': 5,
         'onTap': () => _navigateAndRefresh(context, EmparejarVisual()),
       },
       {
-        'imagen': 'assets/images/Hormigas.png',
+        'imagen': 'assets/images/IconoSilabas.png',
         'texto': 'Jugando con\nsilabas',
         'levelId': 4,
         'onTap': () => _navigateAndRefresh(context, CompletarPalabraApp()),
@@ -231,12 +237,11 @@ class _ActividadimagenState extends State<Actividadimagen> with WidgetsBindingOb
   }
 
   void _navigateAndRefresh(BuildContext context, Widget page) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    ).then((_) {
-      _refreshProgreso();
-    });
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page)).then(
+      (_) {
+        _refreshProgreso();
+      },
+    );
   }
 }
 
@@ -263,72 +268,76 @@ class ActividadCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final double imagenSize = ancho - 40;
 
-  return GestureDetector(
-    onTap: onTap,
-    child: SizedBox(
-      width: ancho,
-      height: alto,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Card visual
-          Positioned.fill(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(height: 20), // Espacio para las estrellas
-                Container(
-                  width: imagenSize,
-                  height: imagenSize,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFF05D090), Color(0xFF026A49)],
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: ancho,
+        height: alto,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Card visual
+            Positioned.fill(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(height: 20), // Espacio para las estrellas
+                  Container(
+                    width: imagenSize,
+                    height: imagenSize,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFF05D090), Color(0xFF026A49)],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(imagen, fit: BoxFit.contain),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    texto,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      decoration: TextDecoration.none,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(imagen, fit: BoxFit.contain),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          // Estrellas en arco, por delante y fuera del card si es necesario
-          Positioned(
-            top: 3, // Puedes ajustar este valor para que sobresalga más
-            left: 0,
-            right: 0,
-            child: SizedBox(
-              height: 40,
-              child: CustomPaint(
-                size: Size(ancho, 40),
-                painter: ArcStarsPainter(estrellas: estrellas),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: SizedBox(
+                      height: 40, // o 50 si quieres más espacio para 2 líneas
+                      child: Text(
+                        texto,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: ancho > 200 ? 20 : 18,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            // Estrellas en arco, por delante y fuera del card si es necesario
+            Positioned(
+              top: 3, // Puedes ajustar este valor para que sobresalga más
+              left: 0,
+              right: 0,
+              child: SizedBox(
+                height: 40,
+                child: CustomPaint(
+                  size: Size(ancho, 40),
+                  painter: ArcStarsPainter(estrellas: estrellas),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }
 
