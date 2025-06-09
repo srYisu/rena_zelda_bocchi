@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class SumasApp extends StatelessWidget {
   @override
@@ -17,6 +18,7 @@ class JuegoSumas extends StatefulWidget {
 }
 
 class _JuegoSumasState extends State<JuegoSumas> with TickerProviderStateMixin {
+  final FlutterTts _flutterTts = FlutterTts();
   int preguntaActual = 0;
   int puntaje = 0;
   bool bloqueado = false;
@@ -32,6 +34,8 @@ class _JuegoSumasState extends State<JuegoSumas> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _initTts();
+    _speak("Selecciona la respuesta correcta para cada suma.");
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
@@ -58,6 +62,16 @@ class _JuegoSumasState extends State<JuegoSumas> with TickerProviderStateMixin {
     _shakeController.dispose();
     super.dispose();
   }
+  void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+  Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
 
   void generarPreguntas() {
     preguntas.clear();

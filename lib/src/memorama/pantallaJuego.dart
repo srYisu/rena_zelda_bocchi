@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 
 // MODELO DE CARTA
 class MemoramaCard {
@@ -29,6 +32,7 @@ class MemoramaGame extends StatefulWidget {
 }
 
 class _MemoramaGameState extends State<MemoramaGame> {
+  final FlutterTts _flutterTts = FlutterTts();
   late List<MemoramaCard> _cards;
   MemoramaCard? _firstFlipped;
   bool _wait = false;
@@ -36,27 +40,51 @@ class _MemoramaGameState extends State<MemoramaGame> {
   double estrellas = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _cards = _generateCards();
-  }
+void initState() {
+  super.initState();
+  _initTts();
+  _cards = _generateCards();
+  _speak("Encuentra los pares");
+}
+
+void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+
+Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
   List<MemoramaCard> _generateCards() {
     final items = <Map<String, dynamic>>[
-      {'id': 'casa', 'image': Icons.house, 'word': 'Casa'},
-      {'id': 'libro', 'image': Icons.book, 'word': 'Libro'},
-      {'id': 'auto', 'image': Icons.directions_car, 'word': 'Auto'},
-      {'id': 'sol', 'image': Icons.wb_sunny, 'word': 'Sol'},
-      {'id': 'flor', 'image': Icons.local_florist, 'word': 'Flor'},
-      {'id': 'estrella', 'image': Icons.star, 'word': 'Estrella'},
+      {'id': 'gato', 'icon': MdiIcons.cat, 'word': 'Gato', 'color': const Color.fromARGB(255, 243, 115, 11)},
+      {'id': 'perro', 'icon': MdiIcons.dog, 'word': 'Perro', 'color': const Color.fromARGB(255, 247, 173, 36)},
+      {'id': 'oso', 'icon': MdiIcons.teddyBear, 'word': 'Oso', 'color': Colors.brown},
+      {'id': 'dado', 'icon': MdiIcons.dice5, 'word': 'Dado', 'color': Colors.green},
+      {'id': 'manzana', 'icon': MdiIcons.apple, 'word': 'Manzana', 'color': Colors.red},
+      {'id': 'tijera', 'icon': Icons.content_cut, 'word': 'Tijera', 'color': Colors.pink},
+      {'id': 'globo', 'icon': MdiIcons.balloon, 'word': 'Globo', 'color': Colors.red},
+      {'id': 'luna', 'icon': MdiIcons.moonWaningCrescent, 'word': 'Luna', 'color': Colors.black},
+      {'id': 'flor', 'icon': MdiIcons.flower, 'word': 'Flor', 'color': Colors.purple},
+      {'id': 'corazon', 'icon': MdiIcons.heart, 'word': 'Corazón', 'color': Colors.pinkAccent},
+      {'id': 'mariposa', 'icon': MdiIcons.butterfly, 'word': 'Mariposa', 'color': Colors.orange},
+      {'id': 'pajaro', 'icon': MdiIcons.bird, 'word': 'Pájaro', 'color': Colors.lightBlue},
+      {'id': 'pez', 'icon': MdiIcons.fish, 'word': 'Pez', 'color': Colors.teal},
+      {'id': 'pino', 'icon': MdiIcons.pineTree, 'word': 'Pino', 'color': Colors.greenAccent},
     ];
 
+  items.shuffle();
+  final selected = items.take(6).toList();
     final cards = <MemoramaCard>[];
 
-    for (var item in items) {
+    for (var item in selected) {
       cards.add(
         MemoramaCard(
           id: item['id'],
-          content: Icon(item['image'], size: 48, color: Colors.blue),
+          content: Icon(item['icon'], size: 48, color: item['color'] as Color?),
         ),
       );
       cards.add(
@@ -65,10 +93,10 @@ class _MemoramaGameState extends State<MemoramaGame> {
           content: Center(
             child: Text(
               item['word'],
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: item['color'] as Color? ?? Colors.black,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -86,6 +114,13 @@ class _MemoramaGameState extends State<MemoramaGame> {
 
     setState(() {
       _cards[index].isFlipped = true;
+      final flippedCard = _cards[index];
+if (flippedCard.content is Center && flippedCard.content is! Icon) {
+  final textWidget = (flippedCard.content as Center).child;
+  if (textWidget is Text) {
+    _speak(textWidget.data ?? '');
+  }
+}
     });
 
     if (_firstFlipped == null) {

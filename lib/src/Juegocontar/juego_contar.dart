@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
   runApp(MaterialApp(home: ContarJuego(), debugShowCheckedModeBanner: false));
@@ -11,8 +13,18 @@ class ContarJuego extends StatefulWidget {
   @override
   State<ContarJuego> createState() => _ContarJuegoState();
 }
+final List<Icon> iconosDisponibles = [
+  Icon(MdiIcons.sheep, color: Colors.blueGrey),
+  Icon(MdiIcons.cow, color: Colors.brown),
+  Icon(MdiIcons.horse, color: Colors.blue),
+  Icon(MdiIcons.duck, color: Colors.yellow),
+  Icon(MdiIcons.pig, color: Colors.pinkAccent),
+  Icon(MdiIcons.rabbitVariant, color: Colors.deepOrange),
+];
 
 class _ContarJuegoState extends State<ContarJuego> {
+  final FlutterTts _flutterTts = FlutterTts();
+  late Icon iconoActual;
   int cantidad = 0;
   late List<int> opciones;
   int rondaActual = 0;
@@ -26,12 +38,25 @@ class _ContarJuegoState extends State<ContarJuego> {
   @override
   void initState() {
     super.initState();
+    _initTts();
     generarNuevaRonda();
+    _speak("Cuenta los animales y selecciona el número correcto.");
   }
+  void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
 
   void generarNuevaRonda() {
     final random = Random();
     cantidad = random.nextInt(maxCantidad) + 1;
+
+    iconoActual = iconosDisponibles[random.nextInt(iconosDisponibles.length)];
 
     opciones = [cantidad];
     while (opciones.length < 3) {
@@ -129,41 +154,64 @@ class _ContarJuegoState extends State<ContarJuego> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: List.generate(
-                            primeraFila,
-                            (index) => Icon(
-                              MdiIcons.sheep,
-                              size: 48,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        if (segundaFila > 0) const SizedBox(height: 10),
-                        if (segundaFila > 0)
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(
-                              segundaFila,
-                              (index) => Icon(
-                                MdiIcons.sheep,
-                                size: 48,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+Expanded(
+  child: Center(
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(1),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.grey[700]!,
+          width: 3,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 10,
+            runSpacing: 10,
+            children: List.generate(
+              primeraFila,
+              (index) => Icon(
+                iconoActual.icon,
+                size: 48,
+                color: iconoActual.color,
+              ),
+            ),
+          ),
+          if (segundaFila > 0) const SizedBox(height: 10),
+          if (segundaFila > 0)
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(
+                segundaFila,
+                (index) => Icon(
+                  iconoActual.icon,
+                  size: 48,
+                  color: iconoActual.color,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  ),
+),
                   const SizedBox(height: 20), // Espacio entre íconos y botones
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
