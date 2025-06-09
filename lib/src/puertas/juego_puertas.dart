@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'banco_preguntas.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class JuegoPantalla extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class JuegoPantalla extends StatefulWidget {
 
 class _JuegoPantallaState extends State<JuegoPantalla>
     with TickerProviderStateMixin {
+  final FlutterTts _flutterTts = FlutterTts();
   final banco = BancoPreguntas();
   final Random _random = Random();
   final player = AudioPlayer();
@@ -43,7 +45,19 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       duration: Duration(milliseconds: 500),
     );
     siguientePregunta();
+    _initTts();
+    _speak("Selecciona la puerta correcta para cada objeto.");
   }
+      void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+  Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
 
   @override
   void dispose() {

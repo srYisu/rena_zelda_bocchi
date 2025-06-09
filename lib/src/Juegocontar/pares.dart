@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class Carta {
   final int valor;
@@ -20,6 +21,7 @@ class EmparejarVisual extends StatefulWidget {
 }
 
 class _EmparejarVisualState extends State<EmparejarVisual> {
+  final FlutterTts _flutterTts = FlutterTts();
   List<Carta> numeros = [];
   List<Carta> iconos = [];
 
@@ -36,7 +38,19 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
   void initState() {
     super.initState();
     generarCartas();
+    _initTts();
+    _speak("Selecciona los numeros con la cantidad correspondiente.");
   }
+    void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+  Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
 
   void generarCartas() {
     final List<Icon> iconosDisponibles = [

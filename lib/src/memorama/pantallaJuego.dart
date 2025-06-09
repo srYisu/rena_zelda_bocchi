@@ -4,6 +4,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 
 // MODELO DE CARTA
 class MemoramaCard {
@@ -30,6 +32,7 @@ class MemoramaGame extends StatefulWidget {
 }
 
 class _MemoramaGameState extends State<MemoramaGame> {
+  final FlutterTts _flutterTts = FlutterTts();
   late List<MemoramaCard> _cards;
   MemoramaCard? _firstFlipped;
   bool _wait = false;
@@ -37,10 +40,24 @@ class _MemoramaGameState extends State<MemoramaGame> {
   double estrellas = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _cards = _generateCards();
-  }
+void initState() {
+  super.initState();
+  _initTts();
+  _cards = _generateCards();
+  _speak("Encuentra los pares");
+}
+
+void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setVolume(0.5); //volumen
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+
+Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
   List<MemoramaCard> _generateCards() {
     final items = <Map<String, dynamic>>[
       {'id': 'gato', 'icon': MdiIcons.cat, 'word': 'Gato', 'color': const Color.fromARGB(255, 243, 115, 11)},
@@ -97,6 +114,13 @@ class _MemoramaGameState extends State<MemoramaGame> {
 
     setState(() {
       _cards[index].isFlipped = true;
+      final flippedCard = _cards[index];
+if (flippedCard.content is Center && flippedCard.content is! Icon) {
+  final textWidget = (flippedCard.content as Center).child;
+  if (textWidget is Text) {
+    _speak(textWidget.data ?? '');
+  }
+}
     });
 
     if (_firstFlipped == null) {

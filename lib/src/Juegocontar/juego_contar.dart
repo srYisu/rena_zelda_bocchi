@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
   runApp(MaterialApp(home: ContarJuego(), debugShowCheckedModeBanner: false));
@@ -22,6 +23,7 @@ final List<Icon> iconosDisponibles = [
 ];
 
 class _ContarJuegoState extends State<ContarJuego> {
+  final FlutterTts _flutterTts = FlutterTts();
   late Icon iconoActual;
   int cantidad = 0;
   late List<int> opciones;
@@ -36,8 +38,19 @@ class _ContarJuegoState extends State<ContarJuego> {
   @override
   void initState() {
     super.initState();
+    _initTts();
     generarNuevaRonda();
+    _speak("Cuenta los animales y selecciona el número correcto.");
   }
+  void _initTts() async {
+  await _flutterTts.setLanguage("es-ES");
+  await _flutterTts.setPitch(1.0); //tono de voz
+  await _flutterTts.setSpeechRate(1); // velocidad de voz
+}
+Future<void> _speak(String text) async {
+  await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.speak(text);
+}
 
   void generarNuevaRonda() {
     final random = Random();
