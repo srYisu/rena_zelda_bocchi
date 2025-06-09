@@ -22,9 +22,9 @@ class BancoPalabras {
       Palabra("CA___", ["RRO", "LPO", "MFO"], "RRO"), // CARRO (CA + RRO)
       Palabra("SO_", ["L", "N", "R"], "L"), // SOL (SO + L)
       Palabra("ME__", ["SA", "LA", "CA"], "SA"), // MESA (ME + SA)
-      Palabra("CA__", ["SA", "LA", "ZA"], "SA"), // CASA (CA + SA)
+      Palabra("CA__", ["SA", "LA", "BA"], "SA"), // CASA (CA + SA)
       Palabra("LU__", ["Z", "S", "N"], "Z"), // LUZ (LU + Z)
-      Palabra("RE__", ["LO", "LA", "SA"], "LO"), // RELOJ (RE + LO)
+      Palabra("RE__", ["LOJ", "LAS", "CAS"], "LOJ"), // RELOJ (RE + LO)
       Palabra("MAN____", [
         "ZANA",
         "DANA",
