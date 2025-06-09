@@ -51,7 +51,31 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
   await _flutterTts.stop(); // para evitar que se empalmen
   await _flutterTts.speak(text);
 }
+void decirCarta(Carta carta) {
+  if (carta.esNumero) {
+    _speak("Número ${carta.valor}");
+  } else {
+    String descripcion = describirIcono(carta.icono);
+    _speak("${carta.valor} ${descripcion}");
+  }
+}
+String describirIcono(Icon? icono) {
+  if (icono == null) return "íconos";
 
+  final iconData = icono.icon;
+  if (iconData == MdiIcons.emoticonHappy) return "caritas felices";
+  if (iconData == MdiIcons.starFace) return "caras de estrella";
+  if (iconData == MdiIcons.puzzle) return "rompecabezas";
+  if (iconData == MdiIcons.cat) return "gatos";
+  if (iconData == MdiIcons.unicorn) return "unicornios";
+  if (iconData == MdiIcons.robot) return "robots";
+  if (iconData == MdiIcons.balloon) return "globos";
+  if (iconData == MdiIcons.candycane) return "bastones de caramelo";
+  if (iconData == MdiIcons.teddyBear) return "ositos";
+  if (iconData == MdiIcons.cupcake) return "pastelitos";
+
+  return "íconos";
+}
   void generarCartas() {
     final List<Icon> iconosDisponibles = [
   Icon(MdiIcons.emoticonHappy, color: Colors.amber),
@@ -91,6 +115,7 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
       setState(() {
         seleccion = carta;
       });
+      decirCarta(carta); // <--- aquí
     } else {
       final empareja =
           seleccion!.valor == carta.valor &&

@@ -44,9 +44,9 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
-    siguientePregunta();
     _initTts();
     _speak("Selecciona la puerta correcta para cada objeto.");
+    siguientePregunta();
   }
       void _initTts() async {
   await _flutterTts.setLanguage("es-ES");
@@ -91,6 +91,7 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       tiempoRestante = tiempoMaximo;
       _puertaErronea = null;
     });
+    _speak(preguntaActual.correcta); 
 
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {

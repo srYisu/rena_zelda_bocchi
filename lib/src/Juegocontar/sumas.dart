@@ -54,7 +54,13 @@ class _JuegoSumasState extends State<JuegoSumas> with TickerProviderStateMixin {
     );
 
     generarPreguntas(); // <-- ¡Agrega esto!
+    decirOperacion();
   }
+
+  void decirOperacion() {
+  final pregunta = preguntas[preguntaActual];
+  _speak("${pregunta.a} más ${pregunta.b}");
+}
 
   @override
   void dispose() {
@@ -119,6 +125,7 @@ class _JuegoSumasState extends State<JuegoSumas> with TickerProviderStateMixin {
       if (preguntaActual < preguntas.length - 1) {
         preguntaActual++;
         respuestaMostrada = null;
+        decirOperacion(); // <--- AQUÍ
       } else {
         _finalizarJuego();
       }
