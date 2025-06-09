@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 void main() {
@@ -20,6 +21,7 @@ class _ContarJuegoState extends State<ContarJuego> {
   Color feedbackColor = Colors.transparent;
 
   final int totalRondas = 6;
+  final int maxCantidad = 10;
 
   @override
   void initState() {
@@ -29,11 +31,11 @@ class _ContarJuegoState extends State<ContarJuego> {
 
   void generarNuevaRonda() {
     final random = Random();
-    cantidad = random.nextInt(5) + 1; // Entre 1 y 5
+    cantidad = random.nextInt(maxCantidad) + 1;
 
     opciones = [cantidad];
     while (opciones.length < 3) {
-      int opc = random.nextInt(5) + 1;
+      int opc = random.nextInt(maxCantidad) + 1;
       if (!opciones.contains(opc)) {
         opciones.add(opc);
       }
@@ -46,7 +48,6 @@ class _ContarJuegoState extends State<ContarJuego> {
     bloqueado = true;
 
     final esCorrecta = seleccionada == cantidad;
-
     if (esCorrecta) puntaje++;
 
     setState(() {
@@ -57,11 +58,7 @@ class _ContarJuegoState extends State<ContarJuego> {
     });
 
     await Future.delayed(const Duration(milliseconds: 500));
-
-    setState(() {
-      feedbackColor = Colors.transparent;
-    });
-
+    setState(() => feedbackColor = Colors.transparent);
     await Future.delayed(const Duration(milliseconds: 300));
 
     setState(() {
@@ -99,17 +96,18 @@ class _ContarJuegoState extends State<ContarJuego> {
 
   @override
   Widget build(BuildContext context) {
+    final primeraFila = cantidad <= 5 ? cantidad : 5;
+    final segundaFila = cantidad > 5 ? cantidad - 5 : 0;
+
     return Scaffold(
       body: Stack(
         children: [
-          // Imagen de fondo
           SizedBox.expand(
             child: Image.asset(
               'assets/images/FondoContar.png',
               fit: BoxFit.cover,
             ),
           ),
-          // Contenido con feedback animado
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             color: feedbackColor,
@@ -132,50 +130,78 @@ class _ContarJuegoState extends State<ContarJuego> {
                   ),
                   const SizedBox(height: 20),
                   Expanded(
-                    child: Center(
-                      child: Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: List.generate(
-                          cantidad,
-                          (index) => const Icon(
-                            Icons.bug_report,
-                            size: 48,
-                            color: Colors.black,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: List.generate(
+                            primeraFila,
+                            (index) => Icon(
+                              MdiIcons.sheep,
+                              size: 48,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                      ),
+                        if (segundaFila > 0) const SizedBox(height: 10),
+                        if (segundaFila > 0)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(
+                              segundaFila,
+                              (index) => Icon(
+                                MdiIcons.sheep,
+                                size: 48,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children:
-                        opciones
-                            .map(
-                              (opcion) => ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.teal,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 15,
-                                  ),
+                  const SizedBox(height: 20), // Espacio entre íconos y botones
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 20,
+                      runSpacing: 16,
+                      children:
+                          opciones.map((opcion) {
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                onPressed:
-                                    bloqueado
-                                        ? null
-                                        : () => verificarRespuesta(opcion),
-                                child: Text(
-                                  '$opcion',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    color: Colors.white,
-                                  ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                  vertical: 20,
                                 ),
                               ),
-                            )
-                            .toList(),
+                              onPressed:
+                                  bloqueado
+                                      ? null
+                                      : () => verificarRespuesta(opcion),
+                              child: Text(
+                                '$opcion',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
