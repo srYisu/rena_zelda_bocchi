@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart'; // Asegúrate de importar esto
+import 'package:flutter_tts/flutter_tts.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 // ...existing code...
