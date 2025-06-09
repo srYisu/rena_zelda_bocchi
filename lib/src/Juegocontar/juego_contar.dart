@@ -24,6 +24,7 @@ final List<Icon> iconosDisponibles = [
 
 class _ContarJuegoState extends State<ContarJuego> {
   final FlutterTts _flutterTts = FlutterTts();
+  int? ultimaOpcionSeleccionada;
   late Icon iconoActual;
   int cantidad = 0;
   late List<int> opciones;
@@ -68,6 +69,17 @@ Future<void> _speak(String text) async {
     opciones.shuffle();
   }
 
+  void manejarToqueBoton(int opcion) async {
+  if (bloqueado) return;
+
+  if (ultimaOpcionSeleccionada != opcion) {
+    ultimaOpcionSeleccionada = opcion;
+    await _speak("$opcion");
+  } else {
+    verificarRespuesta(opcion);
+    ultimaOpcionSeleccionada = null;
+  }
+}
   void verificarRespuesta(int seleccionada) async {
     if (bloqueado) return;
     bloqueado = true;
@@ -156,7 +168,11 @@ Future<void> _speak(String text) async {
                   const SizedBox(height: 20),
 Expanded(
   child: Center(
-    child: AnimatedContainer(
+    child: GestureDetector(
+      onTap: (){
+        _speak("Hay $cantidad animales");
+      },
+      child: AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
@@ -210,6 +226,7 @@ Expanded(
         ],
       ),
     ),
+    )
   ),
 ),
                   const SizedBox(height: 20), // Espacio entre íconos y botones
@@ -233,10 +250,7 @@ Expanded(
                                   vertical: 20,
                                 ),
                               ),
-                              onPressed:
-                                  bloqueado
-                                      ? null
-                                      : () => verificarRespuesta(opcion),
+                              onPressed: bloqueado ? null : () => manejarToqueBoton(opcion),
                               child: Text(
                                 '$opcion',
                                 style: const TextStyle(
