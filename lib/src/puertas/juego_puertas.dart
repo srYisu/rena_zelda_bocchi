@@ -13,7 +13,6 @@ class JuegoPantalla extends StatefulWidget {
 
 class _JuegoPantallaState extends State<JuegoPantalla>
     with TickerProviderStateMixin {
-  final FlutterTts _flutterTts = FlutterTts();
   final banco = BancoPreguntas();
   final Random _random = Random();
   final player = AudioPlayer();
@@ -37,6 +36,7 @@ class _JuegoPantallaState extends State<JuegoPantalla>
 
   late AnimationController _shakeController;
 
+  late FlutterTts _flutterTts;
   @override
   void initState() {
     super.initState();
@@ -44,6 +44,7 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
+    _flutterTts = FlutterTts();
     _initTts();
     _speak("Selecciona la puerta correcta para cada objeto.");
     siguientePregunta();
@@ -52,10 +53,11 @@ class _JuegoPantallaState extends State<JuegoPantalla>
   await _flutterTts.setLanguage("es-ES");
   await _flutterTts.setPitch(1.0); //tono de voz
   await _flutterTts.setVolume(0.5); //volumen
-  await _flutterTts.setSpeechRate(1); // velocidad de voz
+  await _flutterTts.setSpeechRate(0.5); // velocidad de voz
 }
   Future<void> _speak(String text) async {
   await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.setSpeechRate(0.5); // velocidad de voz
   await _flutterTts.speak(text);
 }
 

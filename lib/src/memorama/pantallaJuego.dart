@@ -44,18 +44,18 @@ void initState() {
   super.initState();
   _initTts();
   _cards = _generateCards();
-  _speak("Encuentra los pares");
 }
 
 void _initTts() async {
   await _flutterTts.setLanguage("es-ES");
   await _flutterTts.setPitch(1.0); //tono de voz
   await _flutterTts.setVolume(0.5); //volumen
-  await _flutterTts.setSpeechRate(1); // velocidad de voz
+  await _flutterTts.setSpeechRate(0.5); // velocidad de voz
 }
 
 Future<void> _speak(String text) async {
   await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.setSpeechRate(0.5); // velocidad de voz
   await _flutterTts.speak(text);
 }
   List<MemoramaCard> _generateCards() {
@@ -107,6 +107,11 @@ Future<void> _speak(String text) async {
 
     cards.shuffle();
     return cards;
+  }
+    @override
+  void dispose() {
+    _flutterTts.stop();
+    super.dispose();
   }
 
   void _onCardTap(int index) async {

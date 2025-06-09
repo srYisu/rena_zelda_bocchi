@@ -41,15 +41,15 @@ class _ContarJuegoState extends State<ContarJuego> {
     super.initState();
     _initTts();
     generarNuevaRonda();
-    _speak("Cuenta los animales y selecciona el número correcto.");
   }
   void _initTts() async {
   await _flutterTts.setLanguage("es-ES");
   await _flutterTts.setPitch(1.0); //tono de voz
-  await _flutterTts.setSpeechRate(1); // velocidad de voz
+  await _flutterTts.setSpeechRate(0.5); // velocidad de voz
 }
 Future<void> _speak(String text) async {
   await _flutterTts.stop(); // para evitar que se empalmen
+  await _flutterTts.setSpeechRate(0.5);
   await _flutterTts.speak(text);
 }
 
