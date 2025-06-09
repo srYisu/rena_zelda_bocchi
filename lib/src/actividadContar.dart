@@ -303,7 +303,8 @@ class ActividadCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: SizedBox(
                       height: 40, // o 50 si quieres más espacio para 2 líneas
-                      child: Text(
+                      child:Text("")
+                       /*Text(
                         texto,
                         textAlign: TextAlign.center,
                         maxLines: 2,
@@ -316,7 +317,7 @@ class ActividadCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           decoration: TextDecoration.none,
                         ),
-                      ),
+                      ), */
                     ),
                   ),
                 ],
