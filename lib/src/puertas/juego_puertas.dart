@@ -239,7 +239,6 @@ class _JuegoPantallaState extends State<JuegoPantalla>
     final bool pantallaAncha = anchoPantalla > 700;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Juego de Puertas")),
       body: Stack(
         children: [
           Positioned.fill(

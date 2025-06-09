@@ -1,13 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rena_zelda_bocchi/src/memorama/juegoTerminado.dart';
 
 class Carta {
   final int valor;
   final bool esNumero;
+  final Icon? icono;
   bool emparejado;
 
-  Carta({required this.valor, required this.esNumero, this.emparejado = false});
+  Carta({required this.valor, required this.esNumero, required this.icono, this.emparejado = false});
 }
 
 class EmparejarVisual extends StatefulWidget {
@@ -37,19 +39,32 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
   }
 
   void generarCartas() {
+    final List<Icon> iconosDisponibles = [
+  Icon(MdiIcons.emoticonHappy, color: Colors.amber),
+  Icon(MdiIcons.starFace, color: Colors.yellow),
+  Icon(MdiIcons.puzzle, color: Colors.blue),
+  Icon(MdiIcons.cat, color: Colors.deepOrangeAccent),
+  Icon(MdiIcons.unicorn, color: Colors.pinkAccent),
+  Icon(MdiIcons.robot, color: Colors.deepPurple),
+  Icon(MdiIcons.balloon, color: Colors.redAccent),
+  Icon(MdiIcons.candycane, color: Colors.red),
+  Icon(MdiIcons.teddyBear, color: Colors.brown),
+  Icon(MdiIcons.cupcake, color: Colors.green),
+];
     final random = Random();
     final valores = <int>{};
 
     while (valores.length < 3) {
-      valores.add(random.nextInt(5) + 1);
+      valores.add(random.nextInt(10) + 1);
     }
 
     final lista = valores.toList();
 
-    numeros =
-        lista.map((v) => Carta(valor: v, esNumero: true)).toList()..shuffle();
-    iconos =
-        lista.map((v) => Carta(valor: v, esNumero: false)).toList()..shuffle();
+    final iconosShuffle = List<Icon>.from(iconosDisponibles)..shuffle();
+    final iconosElegidos = iconosShuffle.take(10).toList();
+
+    numeros = lista.map((v) => Carta(valor: v, esNumero: true, icono: null)).toList()..shuffle();
+    iconos = List.generate(3, (i) => Carta(valor: lista[i], esNumero: false, icono: iconosElegidos[i]))..shuffle();
 
     seleccion = null;
     aciertos = 0;
@@ -115,91 +130,118 @@ class _EmparejarVisualState extends State<EmparejarVisual> {
     }
   }
 
-  Widget construirCarta(Carta carta) {
-    final estaSeleccionada = seleccion == carta;
-    final estaEnError =
-        errorActivo &&
-        seleccion != null &&
-        seleccion!.valor == carta.valor &&
-        seleccion!.esNumero != carta.esNumero;
+ // ...existing code...
 
-    return GestureDetector(
-      onTap: () => manejarToque(carta),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.all(8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color:
-              carta.emparejado
-                  ? Colors.green[100]
+Widget construirCarta(Carta carta, double cardHeight) {
+  final cardWidth = cardHeight * 1.5;
+  final estaSeleccionada = seleccion == carta;
+  final estaEnError =
+      errorActivo &&
+      seleccion != null &&
+      seleccion!.valor == carta.valor &&
+      seleccion!.esNumero != carta.esNumero;
+
+  return GestureDetector(
+    onTap: () => manejarToque(carta),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.all(14),
+      width: cardWidth,
+      height: cardHeight,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: carta.emparejado
+            ? Colors.green[100]
+            : estaEnError
+                ? Colors.red[100]
+                : Colors.white,
+        border: Border.all(
+          color: carta.emparejado
+              ? Colors.green
+              : estaSeleccionada
+                  ? Colors.blue
                   : estaEnError
-                  ? Colors.red[100]
-                  : Colors.white,
-          border: Border.all(
-            color:
-                carta.emparejado
-                    ? Colors.green
-                    : estaSeleccionada
-                    ? Colors.blue
-                    : estaEnError
-                    ? Colors.red
-                    : Colors.grey,
-            width: 3,
-          ),
-          borderRadius: BorderRadius.circular(12),
+                      ? Colors.red
+                      : Colors.grey,
+          width: 3,
         ),
-        child:
-            carta.esNumero
-                ? Text('${carta.valor}', style: const TextStyle(fontSize: 28))
-                : Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: List.generate(
-                    carta.valor,
-                    (_) => const Icon(Icons.bug_report, size: 20),
-                  ),
-                ),
+        borderRadius: BorderRadius.circular(12),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Emparejar Visual'), centerTitle: true),
-      body: Column(
-        children: [
-          const SizedBox(height: 10),
-          Text('Ronda $ronda / $totalRondas'),
-          const SizedBox(height: 4),
-          LinearProgressIndicator(
-            value: ronda / totalRondas,
-            color: Colors.teal,
-            minHeight: 8,
-          ),
-          const SizedBox(height: 10),
-          Text('Puntos: $puntos'),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: numeros.map(construirCarta).toList(),
-                  ),
+      child: carta.esNumero
+          ? Center(child: Text('${carta.valor}', style: const TextStyle(fontSize: 28)))
+          : Center(
+              child: Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: List.generate(
+                  carta.valor,
+                  (_) => carta.icono ?? const Icon(Icons.bug_report),
                 ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: iconos.map(construirCarta).toList(),
-                  ),
-                ),
-              ],
+              ),
             ),
+    ),
+  );
+}
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/fondoPares.png',
+            fit: BoxFit.cover,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        Column(
+          children: [
+            const SizedBox(height: 50),
+            Text('Ronda $ronda / $totalRondas'),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: LinearProgressIndicator(
+                value: ronda / totalRondas,
+                color: Colors.teal,
+                minHeight: 6,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text('Puntos: $puntos'),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Calcula el tamaño máximo para quepan 3 cartas por columna con márgenes
+                  double cardSize = (constraints.maxHeight - 100) / 3 - 16;
+                  cardSize = cardSize.clamp(80, 120); // Tamaño mínimo y máximo
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: numeros
+                              .map((carta) => construirCarta(carta, cardSize))
+                              .toList(),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: iconos
+                              .map((carta) => construirCarta(carta, cardSize))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 }
