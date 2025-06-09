@@ -48,16 +48,18 @@ class _JuegoPantallaState extends State<JuegoPantalla>
     _speak("Selecciona la puerta correcta para cada objeto.");
     siguientePregunta();
   }
-      void _initTts() async {
-  await _flutterTts.setLanguage("es-ES");
-  await _flutterTts.setPitch(1.0); //tono de voz
-  await _flutterTts.setVolume(0.5); //volumen
-  await _flutterTts.setSpeechRate(1); // velocidad de voz
-}
+
+  void _initTts() async {
+    await _flutterTts.setLanguage("es-ES");
+    await _flutterTts.setPitch(1.0); //tono de voz
+    await _flutterTts.setVolume(0.5); //volumen
+    await _flutterTts.setSpeechRate(1); // velocidad de voz
+  }
+
   Future<void> _speak(String text) async {
-  await _flutterTts.stop(); // para evitar que se empalmen
-  await _flutterTts.speak(text);
-}
+    await _flutterTts.stop(); // para evitar que se empalmen
+    await _flutterTts.speak(text);
+  }
 
   @override
   void dispose() {
@@ -91,7 +93,7 @@ class _JuegoPantallaState extends State<JuegoPantalla>
       tiempoRestante = tiempoMaximo;
       _puertaErronea = null;
     });
-    _speak(preguntaActual.correcta); 
+    _speak(preguntaActual.correcta);
 
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -264,6 +266,7 @@ class _JuegoPantallaState extends State<JuegoPantalla>
           ),
           Column(
             children: [
+              SizedBox(height: 36),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -337,33 +340,33 @@ class _JuegoPantallaState extends State<JuegoPantalla>
               children: [
                 SizedBox(height: 180),
                 AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve:  Curves.easeInOut,
-              decoration: BoxDecoration(
-                color: const Color(0xFFf0d3a6).withOpacity(1),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Colors.grey[700]!,
-                  width: 3,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFf0d3a6).withOpacity(1),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.grey[700]!, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Icon(
-              preguntaActual.icono,
-              size: 120,
-              color: const Color.fromARGB(255, 199, 64, 54),
-              //color: const Color.fromARGB(255, 223, 169, 23),
-            ),
-            )
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 24,
+                  ),
+                  child: Icon(
+                    preguntaActual.icono,
+                    size: 120,
+                    color: const Color.fromARGB(255, 199, 64, 54),
+                    //color: const Color.fromARGB(255, 223, 169, 23),
+                  ),
+                ),
               ],
-            )
+            ),
           ),
           Positioned(
             bottom: 24,
