@@ -170,48 +170,61 @@ Widget build(BuildContext context) {
             ),
           ),
           const SizedBox(height: 10),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _cards.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-              ),
-              itemBuilder: (context, index) {
-                final card = _cards[index];
-                return GestureDetector(
-                  onTap: () => _onCardTap(index),
-                  child: FlipCard(
-                    isFlipped: card.isFlipped || card.isMatched,
-                    front: Container(
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 56, 149, 224),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Center(
-                        child: Image(
-                          image: AssetImage('assets/images/globos.png'),
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    back: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: card.content,
-                    ),
+          // ...existing code...
+Expanded(
+  child: LayoutBuilder(
+    builder: (context, constraints) {
+      // Cambia el número de columnas según el ancho
+      int crossAxisCount = 3;
+      if (constraints.maxWidth > 900) {
+        crossAxisCount = 6;
+      } else if (constraints.maxWidth > 600) {
+        crossAxisCount = 4;
+      }
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _cards.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+        ),
+        itemBuilder: (context, index) {
+          final card = _cards[index];
+          return GestureDetector(
+            onTap: () => _onCardTap(index),
+            child: FlipCard(
+              isFlipped: card.isFlipped || card.isMatched,
+              front: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 56, 149, 224),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Image(
+                    image: AssetImage('assets/images/globos.png'),
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
                   ),
-                );
-              },
+                ),
+              ),
+              back: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: card.content,
+              ),
             ),
-          ),
+          );
+        },
+      );
+    },
+  ),
+),
+// ...existing code...
         ],
       ),
     ],
