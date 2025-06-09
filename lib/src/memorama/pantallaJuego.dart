@@ -137,61 +137,100 @@ class _MemoramaGameState extends State<MemoramaGame> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 10),
-        Text(
-          "Intentos: $_intentos, estrellas: ",
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black, decoration: TextDecoration.none,),
+@override
+Widget build(BuildContext context) {
+  return Stack(
+    children: [
+      Positioned.fill(
+        child: Image.asset(
+          'assets/images/fondoMemorama.png',
+          fit: BoxFit.cover,
         ),
-        const SizedBox(height: 10),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _cards.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
+      ),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 50),
+          Text(
+            "¡Encuentra las",
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              decoration: TextDecoration.none,
             ),
-            itemBuilder: (context, index) {
-              final card = _cards[index];
-              return GestureDetector(
-                onTap: () => _onCardTap(index),
-                child: FlipCard(
-                  isFlipped: card.isFlipped || card.isMatched,
-                  front:  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.lightGreen,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "?",
-                        style: TextStyle(fontSize: 50, color: Colors.white, decoration: TextDecoration.none,),
-                      ),
-                    ),
-                  ),
-                  back: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: card.content,
+          ),
+          Text(
+            "parejas¡",
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 10),
+          // ...existing code...
+Expanded(
+  child: LayoutBuilder(
+    builder: (context, constraints) {
+      // Cambia el número de columnas según el ancho
+      int crossAxisCount = 3;
+      if (constraints.maxWidth > 900) {
+        crossAxisCount = 6;
+      } else if (constraints.maxWidth > 600) {
+        crossAxisCount = 4;
+      }
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _cards.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+        ),
+        itemBuilder: (context, index) {
+          final card = _cards[index];
+          return GestureDetector(
+            onTap: () => _onCardTap(index),
+            child: FlipCard(
+              isFlipped: card.isFlipped || card.isMatched,
+              front: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 56, 149, 224),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Image(
+                    image: AssetImage('assets/images/globos.png'),
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+              ),
+              back: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: card.content,
+              ),
+            ),
+          );
+        },
+      );
+    },
+  ),
+),
+// ...existing code...
+        ],
+      ),
+    ],
+  );
 }
-
+}
 // FLIP CARD CON AUDIO
 class FlipCard extends StatefulWidget {
   final Widget front;

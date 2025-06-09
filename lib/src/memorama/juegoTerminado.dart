@@ -3,6 +3,7 @@ import 'package:rena_zelda_bocchi/src/Completapalabras/completa.dart';
 import 'package:rena_zelda_bocchi/src/Juegocontar/juego_contar.dart';
 import 'package:rena_zelda_bocchi/src/Juegocontar/pares.dart';
 import 'package:rena_zelda_bocchi/src/Juegocontar/sumas.dart';
+import 'package:rena_zelda_bocchi/src/actividadContar.dart';
 import 'package:rena_zelda_bocchi/src/memorama/pantallaJuego.dart';
 import 'package:rena_zelda_bocchi/src/puertas/juego_puertas.dart';
 import 'package:rive/rive.dart';
@@ -70,14 +71,23 @@ Future<void> _guardarProgreso(double estrellas) async {
     _guardarProgreso(estrellas);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Resultado")),
-      body: Center(
+  body: Stack(
+    children: [
+      Container(
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage('assets/images/fondoJuegoTerminado.png'),
+      fit: BoxFit.cover,
+    ),
+  ),
+),
+      Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 20),
-            Text(message, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 30),
+            const SizedBox(height: 100),
+            Text(message, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 10),
             SizedBox(
               width: 500,
               height: 500,
@@ -93,42 +103,64 @@ Future<void> _guardarProgreso(double estrellas) async {
                 },
               ),
             ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Widget nextGame;
+                switch (levelId) {
+                  case 1:
+                    nextGame = const MemoramaGame();
+                    break;
+                  case 2:
+                    nextGame = JuegoPantalla();
+                    break;
+                  case 3:
+                    nextGame = ContarJuego();
+                    break;
+                  case 4:
+                    nextGame = CompletarPalabraApp();
+                    break;
+                  case 5:
+                    nextGame = EmparejarVisual();
+                    break;
+                  case 6:
+                    nextGame = SumasApp();
+                    break;
+                  default:
+                    nextGame = const MemoramaGame();
+                }
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => nextGame),
+                );
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //const Text("Volver a jugar", style: TextStyle(fontSize: 20)),
+                 // const SizedBox(height: 10),
+                  const Icon(Icons.loop, size: 50, color: Colors.blue,),
+                ],
+              )
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
-  onPressed: () {
-    Widget nextGame;
-    switch (levelId) {
-      case 1:
-        nextGame = const MemoramaGame();
-        break;
-      case 2:
-        nextGame = JuegoPantalla();
-        break;
-      case 3:
-        nextGame = ContarJuego();
-        break;
-      case 4:
-        nextGame = CompletarPalabraApp();
-        break;
-      case 5:
-        nextGame = EmparejarVisual();
-        break;
-      case 6:
-        nextGame = SumasApp();
-        break;
-      default:
-        nextGame = const MemoramaGame();
-    }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => nextGame),
-    );
-  },
-  child: const Text("Jugar de nuevo"),
-),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => Actividadimagen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              child: const Icon(Icons.close, color: Colors.red,),
+            ),
           ],
         ),
       ),
-    );
+    ],
+  ),
+);
   }
 }
